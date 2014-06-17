@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>EN-ICE JIRA</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.2.css" />
+    </head>
+    <body>
+        <div data-role="page" id="dashboard">
+            <div data-role="panel" id="dashboard_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li data-theme="b"><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                    <li><a href="#filters" data-transition="slide">Filters</a></li>
+                    <li><a href="#projects" data-transition="slide">Projects</a></li>
+                    <li><a href="#issues" data-transition="slide">Issues</a></li>
+                    <li><a href="#settings" data-transition="slide">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#dashboard_menu_panel" data-icon="grid">Menu</a>
+                <h1>EN-ICE JIRA Dashboard</h1>
+                <a href="#issue-form">Create issue</a>
+            </div>
+            <div data-role="content">
+                <p>The content</p>
+            </div>
+        </div>
+        <div data-role="page" id="projects">
+            <div data-role="panel" id="projects_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#filters">Filters</a></li>
+                    <li data-theme="b"><a href="#projects">Projects</a></li>
+                    <li><a href="#issues">Issues</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#projects_menu_panel" data-icon="grid">Menu</a>
+                <h1>Projects</h1>
+                <a href="#issue-form">Create issue</a>
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" data-inset="true" data-filter="true" id="projects-list">
+                </ul>
+            </div>
+        </div>
+        <div data-role="page" id="filters">
+            <div data-role="panel" id="filters_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                    <li data-theme="b"><a href="#filters" data-transition="slide">Filters</a></li>
+                    <li><a href="#projects" data-transition="slide">Projects</a></li>
+                    <li><a href="#issues" data-transition="slide">Issues</a></li>
+                    <li><a href="#settings" data-transition="slide">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#filters_menu_panel" data-icon="grid">Menu</a>
+                <h1>My filters</h1>
+                <a href="#issue-form">Create issue</a>
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" data-inset="true" data-filter="true" id="filters-list">
+                </ul>
+            </div>
+        </div>
+        <div data-role="page" id="issues">
+            <div data-role="panel" id="issues_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                    <li><a href="#filters" data-transition="slide">Filters</a></li>
+                    <li><a href="#projects" data-transition="slide">Projects</a></li>
+                    <li data-theme="b"><a href="#issues" data-transition="slide">Issues</a></li>
+                    <li><a href="#settings" data-transition="slide">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#issues_menu_panel" data-icon="grid">Menu</a>
+                <h1>Issues</h1>
+                <a href="#issue-form">Create issue</a>
+            </div>
+            <div data-role="content">
+                <div data-role="collapsible" data-theme="b" data-content-theme="d" id="filter-collapsible">
+                    <h4 id="filter-name">New filter</h4>
+                    <p>
+                        <label for="filter-name-field">Filter name:</label>
+                        <input type="text" name="filter-name-field" id="filter-name-field" value="">
+                        <label for="jql-textarea">JQL:</label>
+                        <textarea cols="40" rows="8" name="jql-textarea" id="jql-textarea"></textarea>
+                        <a href="#" data-role="button" data-icon="search" data-inline="true" id="filter-button">Filter</a>
+                        <a href="#" data-role="button" data-icon="search" data-inline="true">Save</a>
+                    </p>
+                </div>
+                <table data-role="table" id="issues-table" data-mode="reflow" class="ui-responsive table-stroke">
+                    <thead>
+                        <tr>
+                            <th data-priority="1">Type</th>
+                            <th data-priority="persist">Key</th>
+                            <th data-priority="2">Summary</th>
+                            <th data-priority="3">Priority</th>
+                            <th data-priority="4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div data-role="page" id="issue">
+            <div data-role="panel" id="issue_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                    <li><a href="#filters" data-transition="slide">Filters</a></li>
+                    <li><a href="#projects" data-transition="slide">Projects</a></li>
+                    <li><a href="#issues" data-transition="slide">Issues</a></li>
+                    <li><a href="#settings" data-transition="slide">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#issue_menu_panel" data-icon="grid">Menu</a>
+                <h1 id="issue-page-title">Issue</h1>
+            </div>
+            <div data-role="content">
+                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                    <h3>Details</h3>
+                    <p>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Type</div>
+                        <div class="ui-block-b" id="issue-type"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Status</div>
+                        <div class="ui-block-b" id="issue-status"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Resolution</div>
+                        <div class="ui-block-b" id="issue-resolution"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Priority</div>
+                        <div class="ui-block-b" id="issue-priority"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Assignee</div>
+                        <div class="ui-block-b" id="issue-assignee"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Reporter</div>
+                        <div class="ui-block-b" id="issue-reporter"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Affects Version/s</div>
+                        <div class="ui-block-b" id="issue-affects-versions"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Fix Version/s</div>
+                        <div class="ui-block-b" id="issue-fix-versions"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Component/s</div>
+                        <div class="ui-block-b" id="issue-components"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Labels</div>
+                        <div class="ui-block-b" id="issue-labels"></div>
+                    </div>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                    <h3>Description</h3>
+                    <p>
+                    <div id="issue-description"></div>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                    <h3>Dates and time tracking</h3>
+                    <p>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Created</div>
+                        <div class="ui-block-b" id="issue-created"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Updated</div>
+                        <div class="ui-block-b" id="issue-updated"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Due date</div>
+                        <div class="ui-block-b" id="issue-due-date"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Estimated</div>
+                        <div class="ui-block-b" id="issue-estimated"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Remaining</div>
+                        <div class="ui-block-b" id="issue-remaining"></div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Logged</div>
+                        <div class="ui-block-b" id="issue-logged"></div>
+                    </div>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                    <h3>Comments</h3>
+                    <p>List of comments</p>
+                </div>
+                <!-- /collapsible -->
+            </div>
+        </div>
+        <div data-role="page" id="issue-form">
+            <div data-role="panel" id="issue-form_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                    <li><a href="#filters" data-transition="slide">Filters</a></li>
+                    <li><a href="#projects" data-transition="slide">Projects</a></li>
+                    <li><a href="#issues" data-transition="slide">Issues</a></li>
+                    <li><a href="#settings" data-transition="slide">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#issue-form_menu_panel" data-icon="grid">Menu</a>
+                <h1 id="issue-page-title">Create new issue</h1>
+            </div>
+            <div data-role="content">
+                <label for="issue-summary-field">Project:</label>
+                <input type="text" name="issue-project-field" id="issue-project-field" value="">
+                <label for="issue-summary-field">Summary:</label>
+                <input type="text" name="issue-summary-field" id="issue-summary-field" value="">
+                <label for="issue-type-select" class="select">Type:</label>
+                <select name="issue-type-select" id="issue-type-select" data-native-menu="false">
+                    <option>Type</option>
+                    <option value="bug">Bug</option>
+                    <option value="incident">Incident</option>
+                    <option value="task">Task</option>
+                    <option value="new_feature">New feature</option>
+                    <option value="improvement">Improvement</option>
+                </select>
+                <label for="issue-priority-select" class="select">Priority:</label>
+                <select name="issue-priority-select" id="issue-priority-select" data-native-menu="false">
+                    <option>Priority</option>
+                    <option value="blocker">Blocker</option>
+                    <option value="critical">Critical</option>
+                    <option value="major">Major</option>
+                    <option value="minor">Minor</option>
+                    <option value="trivial">Trivial</option>
+                </select>
+            </div>
+        </div>
+        <div data-role="page" id="settings">
+            <div data-role="panel" id="settings_menu_panel" data-display="push" data-position="left">
+                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
+                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                    <li><a href="#filters" data-transition="slide">Filters</a></li>
+                    <li><a href="#projects" data-transition="slide">Projects</a></li>
+                    <li><a href="#issues" data-transition="slide">Issues</a></li>
+                    <li data-theme="b"><a href="#settings" data-transition="slide">Settings</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-theme="a">
+                <a href="#settings_menu_panel" data-icon="grid">Menu</a>
+                <h1>Settings</h1>
+            </div>
+            <div data-role="content">
+                <p>
+                    <label for="jira-link-field">JIRA link:</label>
+                    <input type="text" name="text-basic" id="jira-link-field" value="">
+                </p>
+                <p>
+                    <label for="username-field">User name:</label>
+                    <input type="text" name="text-basic" id="username-field" value="">
+                </p>
+                <p>
+                    <label for="password-field">Password:</label>
+                    <input type="password" name="password" id="password-field" value="" autocomplete="off">
+                </p>
+                <p>
+                    <a href="#" data-role="button" id="save-settings-button">Save</a>
+                    <a href="#" data-role="button" id="clear-credentials-button">Clear</a>
+                </p>
+            </div>
+        </div>
+        <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile-1.4.2.js"></script>
+        <script type="text/javascript" src="js/base64.js"></script>
+        <script type="text/javascript" src="js/jira-mobile.js"></script>
+    </body>
+</html>
