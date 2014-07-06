@@ -2,7 +2,7 @@
 
     (function () {
 
-        var DO_PROXY            = false,
+        var DO_PROXY            = true,
             SECONDS_IN_WORKDAY  = 28800, // 8 hours workday
             // REST API links
             PROJECTS_LINK       = '/rest/api/latest/project',
@@ -17,7 +17,8 @@
                 'filterName': '',
                 'filterJQL': ''
             },
-            currentIssueKey     = '';
+            currentIssueKey     = '',
+            notificationTimeoutId = 0;
 
         $(function() {
             // execute when page is loaded
@@ -32,6 +33,10 @@
             $('#filter-button').tap(function (e) {
                 e.preventDefault();
                 filterIssues();
+            });
+
+            $('#save-filter-button').tap(function (e) {
+                saveFilter();
             });
 
             $( "#menu_panel" ).panel();
@@ -62,7 +67,7 @@
         }
 
         function showProjects() {
-            $.mobile.loading( "show" );
+            showNotification();
             $.ajax({
                 type: "GET",
                 url: getUrl(jiraLink + PROJECTS_LINK),
@@ -85,18 +90,18 @@
                         $list.append($('<li/>').html($a));
                     }
                     $list.listview('refresh');
-                    $.mobile.loading( "hide" );
+                    hideNotification();
                 },
                 error: function (data) {
                     console.log('Error while retrieving projects.');
                     console.log(data);
-                    $.mobile.loading( "hide" );
+                    hideNotification();
                 }
             });
         }
 
         function showFilters() {
-            $.mobile.loading( "show" );
+            showNotification();
             $.ajax({
                 type: "GET",
                 url: getUrl(jiraLink + FILTERS_LINK),
@@ -131,12 +136,12 @@
 
                     }
                     $list.listview('refresh');
-                    $.mobile.loading( "hide" );
+                    hideNotification();
                 },
                 error: function (data) {
                     console.log('Error while retrieving filters.');
                     console.log(data);
-                    $.mobile.loading( "hide" );
+                    hideNotification();
                 }
             });
         }
@@ -144,7 +149,7 @@
         function showIssue() {
             $('#issue').find('#issue-page-title').html(currentIssueKey);
             $('#issue-details-collapsible').collapsible("expand");
-            $.mobile.loading( "show" );
+            showNotification();
             $.ajax({
                 type: "GET",
                 url: getUrl(jiraLink + ISSUE_LINK + currentIssueKey),
@@ -186,12 +191,12 @@
                     $('#issue-estimated').html(issueFields['timetracking']['originalEstimate']);
                     $('#issue-remaining').html(issueFields['timetracking']['remainingEstimate']);
                     $('#issue-logged').html(issueFields['timetracking']['timeSpent']);
-                    $.mobile.loading( "hide" );
+                    hideNotification();
                 },
                 error: function (data) {
                     console.log('Error while retrieving issue info.');
                     console.log(data);
-                    $.mobile.loading( "hide" );
+                    hideNotification();
                 }
             });
         }
@@ -229,9 +234,7 @@
             // escaping JQL twice because PHP proxy script unescapes GET params
             var jql = escape($('#jql-textarea').val());
             if (jql.trim() != '') {
-                $.mobile.loading( "show", {
-                    theme: "b",
-                } );
+                showNotification();
                 $.ajax({
                     type: "GET",
                     url: getUrl(jiraLink + ISSUES_LINK + jql),
@@ -269,12 +272,12 @@
                             })(templateData.issues[i].key);
                         }
                         $table.table('refresh');
-                        $.mobile.loading( "hide" );
+                        hideNotification();
                     },
                     error: function (data) {
                         console.log('Error while retrieving issues.');
                         console.log(data);
-                        $.mobile.loading( "hide" );
+                        hideNotification();
                     }
                 });
             } else {
@@ -291,16 +294,30 @@
         }
         
         function saveSettings(e) {
-        e.preventDefault();
-        jiraLink = $('#jira-link-field').val();
-        var username = $('#username-field').val();
-        var password = $('#password-field').val();
-        authHeaderValue = get_auth_header_value(username, password);
-        localStorage.setItem("jiraLink", jiraLink);
-        localStorage.setItem("username", username);
-        localStorage.setItem("password", password);
-        localStorage.setItem("authHeaderValue", authHeaderValue);
-        $( "body" ).pagecontainer( "change", "#projects");
+            e.preventDefault();
+            jiraLink = $('#jira-link-field').val();
+            var username = $('#username-field').val();
+            var password = $('#password-field').val();
+            authHeaderValue = get_auth_header_value(username, password);
+            localStorage.setItem("jiraLink", jiraLink);
+            localStorage.setItem("username", username);
+            localStorage.setItem("password", password);
+            localStorage.setItem("authHeaderValue", authHeaderValue);
+            $( "body" ).pagecontainer( "change", "#projects");
+        }
+
+        function saveFilter() {
+            var filterName = $('#filter-name-field').val().trim();
+            if (filterName === '') {
+                showNotification("Filter name is not specified.", true, 4000);
+                return;
+            }
+            var filterJQL = $('#jql-textarea').html();
+            if (filterJQL === '') {
+                showNotification("JQL is not specified.", true, 4000);
+                return;
+            }
+            // TODO: send ajax request to save filter or save as if name is changed
         }
 
         function loadSettings(e) {
@@ -325,6 +342,32 @@
                     var href = temp[1].substring(0, temp[1].lastIndexOf(']'));
                     return '<a href="' + href + '">' + text + '</a>';
                 });
+        }
+
+        function showNotification(text, textonly, timeout) {
+            text = typeof text !== 'undefined' ? text : "Loading";
+            textonly = typeof textonly !== 'undefined' ? textonly : false;
+            timeout = typeof timeout !== 'undefined' ? timeout : false;
+
+            clearTimeout(notificationTimeoutId);
+
+            var options = {
+                theme: "b",
+                text: text,
+                textVisible: true,
+                textonly: textonly
+            };
+
+            $.mobile.loading( "show", options);
+            if (timeout !== false) {
+                notificationTimeoutId = setTimeout(function() {
+                    $.mobile.loading( "hide" );
+                }, timeout);
+            }
+        }
+
+        function hideNotification() {
+            $.mobile.loading( "hide" );
         }
         
         /*function getDaysAndWeeksByTimestamp(timestamp) {
