@@ -3,21 +3,44 @@
     <head>
         <title>EN-ICE JIRA</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="css/jquery.mobile-1.4.2.css" />
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
     </head>
+
+    <script id="issues-table-rows-tpl" type="text/html">
+        {{#issues}}
+        <tr>
+            <td class="issue-type">{{type}}</td>
+            <td class="issue-key">
+                <a href="#">{{key}}</a>
+            </td>
+            <td class="issue-summary">
+                <a href="#">{{summary}}</a>
+            </td>
+            <td class="issue-priority">{{priority}}</td>
+            <td class="issue-status">{{status}}</td>
+        </tr>
+        {{/issues}}
+    </script>
+
+    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="js/mustache.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile-1.4.3.js"></script>
+    <script type="text/javascript" src="js/base64.js"></script>
+    <script type="text/javascript" src="js/jira-mobile.js"></script>
+
     <body>
+        <div data-role="panel" id="menu_panel" data-display="push" data-position="left" data-theme="a">
+            <ul data-role="listview" data-inset="false" id="menu-list">
+                <li data-theme="b"><a href="#dashboard" data-transition="slide">Dashboard</a></li>
+                <li><a href="#filters" data-transition="slide">Filters</a></li>
+                <li><a href="#projects" data-transition="slide">Projects</a></li>
+                <li><a href="#issues" data-transition="slide">Issue navigator</a></li>
+                <li><a href="#settings" data-transition="slide">Settings</a></li>
+            </ul>
+        </div>
         <div data-role="page" id="dashboard">
-            <div data-role="panel" id="dashboard_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li data-theme="b"><a href="#dashboard" data-transition="slide">Dashboard</a></li>
-                    <li><a href="#filters" data-transition="slide">Filters</a></li>
-                    <li><a href="#projects" data-transition="slide">Projects</a></li>
-                    <li><a href="#issues" data-transition="slide">Issues</a></li>
-                    <li><a href="#settings" data-transition="slide">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#dashboard_menu_panel" data-icon="grid">Menu</a>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1>EN-ICE JIRA Dashboard</h1>
                 <a href="#issue-form">Create issue</a>
             </div>
@@ -26,17 +49,8 @@
             </div>
         </div>
         <div data-role="page" id="projects">
-            <div data-role="panel" id="projects_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li><a href="#dashboard">Dashboard</a></li>
-                    <li><a href="#filters">Filters</a></li>
-                    <li data-theme="b"><a href="#projects">Projects</a></li>
-                    <li><a href="#issues">Issues</a></li>
-                    <li><a href="#settings">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#projects_menu_panel" data-icon="grid">Menu</a>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1>Projects</h1>
                 <a href="#issue-form">Create issue</a>
             </div>
@@ -46,17 +60,8 @@
             </div>
         </div>
         <div data-role="page" id="filters">
-            <div data-role="panel" id="filters_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
-                    <li data-theme="b"><a href="#filters" data-transition="slide">Filters</a></li>
-                    <li><a href="#projects" data-transition="slide">Projects</a></li>
-                    <li><a href="#issues" data-transition="slide">Issues</a></li>
-                    <li><a href="#settings" data-transition="slide">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#filters_menu_panel" data-icon="grid">Menu</a>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1>My filters</h1>
                 <a href="#issue-form">Create issue</a>
             </div>
@@ -66,23 +71,14 @@
             </div>
         </div>
         <div data-role="page" id="issues">
-            <div data-role="panel" id="issues_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
-                    <li><a href="#filters" data-transition="slide">Filters</a></li>
-                    <li><a href="#projects" data-transition="slide">Projects</a></li>
-                    <li data-theme="b"><a href="#issues" data-transition="slide">Issues</a></li>
-                    <li><a href="#settings" data-transition="slide">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#issues_menu_panel" data-icon="grid">Menu</a>
-                <h1>Issues</h1>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
+                <h1>Issue navigator</h1>
                 <a href="#issue-form">Create issue</a>
             </div>
             <div data-role="content">
-                <div data-role="collapsible" data-theme="b" data-content-theme="d" id="filter-collapsible">
-                    <h4 id="filter-name">New filter</h4>
+                <div data-role="collapsible" id="filter-collapsible">
+                    <h4 id="filter-name">Filter</h4>
                     <p>
                         <label for="filter-name-field">Filter name:</label>
                         <input type="text" name="filter-name-field" id="filter-name-field" value="">
@@ -92,7 +88,7 @@
                         <a href="#" data-role="button" data-icon="search" data-inline="true">Save</a>
                     </p>
                 </div>
-                <table data-role="table" id="issues-table" data-mode="reflow" class="ui-responsive table-stroke">
+                <table data-role="table" id="issues-table" data-mode="reflow" class="ui-responsive table-stroke issues-table">
                     <thead>
                         <tr>
                             <th data-priority="1">Type</th>
@@ -108,23 +104,18 @@
             </div>
         </div>
         <div data-role="page" id="issue">
-            <div data-role="panel" id="issue_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
-                    <li><a href="#filters" data-transition="slide">Filters</a></li>
-                    <li><a href="#projects" data-transition="slide">Projects</a></li>
-                    <li><a href="#issues" data-transition="slide">Issues</a></li>
-                    <li><a href="#settings" data-transition="slide">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#issue_menu_panel" data-icon="grid">Menu</a>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1 id="issue-page-title">Issue</h1>
             </div>
             <div data-role="content">
-                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                <div data-role="collapsible" data-inset="false" id="issue-details-collapsible">
                     <h3>Details</h3>
                     <p>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Summary</div>
+                        <div class="ui-block-b" id="issue-summary"></div>
+                    </div>
                     <div class="ui-grid-a">
                         <div class="ui-block-a">Type</div>
                         <div class="ui-block-b" id="issue-type"></div>
@@ -168,14 +159,14 @@
                     </p>
                 </div>
                 <!-- /collapsible -->
-                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                <div data-role="collapsible" data-inset="false">
                     <h3>Description</h3>
                     <p>
                     <div id="issue-description"></div>
                     </p>
                 </div>
                 <!-- /collapsible -->
-                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                <div data-role="collapsible" data-inset="false">
                     <h3>Dates and time tracking</h3>
                     <p>
                     <div class="ui-grid-a">
@@ -205,7 +196,7 @@
                     </p>
                 </div>
                 <!-- /collapsible -->
-                <div data-role="collapsible" data-theme="b" data-content-theme="d" data-inset="false">
+                <div data-role="collapsible" data-inset="false">
                     <h3>Comments</h3>
                     <p>List of comments</p>
                 </div>
@@ -213,17 +204,8 @@
             </div>
         </div>
         <div data-role="page" id="issue-form">
-            <div data-role="panel" id="issue-form_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
-                    <li><a href="#filters" data-transition="slide">Filters</a></li>
-                    <li><a href="#projects" data-transition="slide">Projects</a></li>
-                    <li><a href="#issues" data-transition="slide">Issues</a></li>
-                    <li><a href="#settings" data-transition="slide">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#issue-form_menu_panel" data-icon="grid">Menu</a>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1 id="issue-page-title">Create new issue</h1>
             </div>
             <div data-role="content">
@@ -252,17 +234,8 @@
             </div>
         </div>
         <div data-role="page" id="settings">
-            <div data-role="panel" id="settings_menu_panel" data-display="push" data-position="left">
-                <ul data-role="listview" data-inset="false" data-filter="true" id="menu-list">
-                    <li><a href="#dashboard" data-transition="slide">Dashboard</a></li>
-                    <li><a href="#filters" data-transition="slide">Filters</a></li>
-                    <li><a href="#projects" data-transition="slide">Projects</a></li>
-                    <li><a href="#issues" data-transition="slide">Issues</a></li>
-                    <li data-theme="b"><a href="#settings" data-transition="slide">Settings</a></li>
-                </ul>
-            </div>
             <div data-role="header" data-theme="a">
-                <a href="#settings_menu_panel" data-icon="grid">Menu</a>
+                <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1>Settings</h1>
             </div>
             <div data-role="content">
@@ -284,9 +257,5 @@
                 </p>
             </div>
         </div>
-        <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
-        <script type="text/javascript" src="js/jquery.mobile-1.4.2.js"></script>
-        <script type="text/javascript" src="js/base64.js"></script>
-        <script type="text/javascript" src="js/jira-mobile.js"></script>
     </body>
 </html>
