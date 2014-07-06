@@ -2,7 +2,7 @@
 
     (function () {
 
-        var DO_PROXY            = true,
+        var DO_PROXY            = false,
             SECONDS_IN_WORKDAY  = 28800, // 8 hours workday
             // REST API links
             PROJECTS_LINK       = '/rest/api/latest/project',
@@ -121,8 +121,6 @@
                                 href: '#'
                             }).html(filterName).tap(function (e) {
                                 e.preventDefault();
-                                //$('#filter-name').find('.ui-btn-text').html(filterName)
-                                //$('#jql-textarea').html(filterJQL);
                                 selectedFilter.filterName = filterName;
                                 selectedFilter.filterJQL = filterJQL;
                                 $( "body" ).pagecontainer( "change", "#issues");
@@ -161,7 +159,8 @@
                     var issueFields = data['fields'];
                     var issue = {
                         description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
-                        resolution: (issueFields['resolution'] !== undefined && issueFields['resolution'] !== null) ? issueFields['resolution']['name'] : 'Unresolved',
+                        resolution: (issueFields['resolution'] !== undefined && issueFields['resolution'] !== null) ? 
+                                issueFields['resolution']['name'] : 'Unresolved',
                         created: new Date(issueFields['created']).toLocaleString(),
                         updated: new Date(issueFields['updated']).toLocaleString(),
                         duedate: new Date(issueFields['duedate']).toLocaleString()
@@ -230,6 +229,9 @@
             // escaping JQL twice because PHP proxy script unescapes GET params
             var jql = escape($('#jql-textarea').val());
             if (jql.trim() != '') {
+                $.mobile.loading( "show", {
+                    theme: "b",
+                } );
                 $.ajax({
                     type: "GET",
                     url: getUrl(jiraLink + ISSUES_LINK + jql),
@@ -267,10 +269,12 @@
                             })(templateData.issues[i].key);
                         }
                         $table.table('refresh');
+                        $.mobile.loading( "hide" );
                     },
                     error: function (data) {
                         console.log('Error while retrieving issues.');
                         console.log(data);
+                        $.mobile.loading( "hide" );
                     }
                 });
             } else {
