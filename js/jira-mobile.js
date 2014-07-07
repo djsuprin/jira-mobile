@@ -369,6 +369,13 @@
         function hideNotification() {
             $.mobile.loading( "hide" );
         }
+
+        /*function checkConnectivity() {
+            if (!navigator.onLine) {
+                // TODO: show banner in the bottom of the page
+
+            }
+        }*/
         
         /*function getDaysAndWeeksByTimestamp(timestamp) {
             var days = (timestamp / SECONDS_IN_WORKDAY) | 0;
