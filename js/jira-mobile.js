@@ -2,7 +2,7 @@
 
     (function () {
 
-        var DO_PROXY            = true,
+        var DO_PROXY            = false,
             SECONDS_IN_WORKDAY  = 28800, // 8 hours workday
             // REST API links
             PROJECTS_LINK       = '/rest/api/latest/project',
