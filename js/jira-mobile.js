@@ -2,21 +2,23 @@
 
     (function () {
 
-        var DO_PROXY            = true,
+        var DO_PROXY            = false,
             SECONDS_IN_WORKDAY  = 28800, // 8 hours workday
             // REST API links
             PROJECTS_LINK       = '/rest/api/latest/project',
             FILTERS_LINK        = '/rest/api/latest/filter/favourite',
             ISSUES_LINK         = '/rest/api/latest/search?jql=',
             ISSUE_LINK          = '/rest/api/latest/issue/',
+            FILTER_BY_ID_LINK   = '/rest/api/latest/filter',
             // Authentication settings
             jiraLink            = localStorage.getItem('jiraLink'),
             authHeaderValue     = localStorage.getItem('authHeaderValue'),
             // Variables containing current state of app components
-            selectedFilter = {
+            selectedFilter = null, /* {
                 'filterName': '',
-                'filterJQL': ''
-            },
+                'filterJQL': '',
+                'filterID': ''
+            },*/
             currentIssueKey     = '',
             notificationTimeoutId = 0;
 
@@ -39,6 +41,10 @@
                 saveFilter();
             });
 
+            $('#new-filter-button').tap(function (e) {
+                clearFilter();
+            });
+
             $( "#menu_panel" ).panel();
             $( "#menu-list" ).listview().enhanceWithin();
             $.mobile.defaultPageTransition = 'slide';
@@ -55,7 +61,7 @@
                 case "settings": loadSettings(); break;
                 case "projects": showProjects(); break;
                 case "filters": showFilters(); break;
-                case "issues": filterIssues(); break;
+                case "issues": showIssues(); break;
                 case "issue": showIssue(); break;
             }
         });
@@ -120,30 +126,45 @@
                     for (var i = 0; i < filters.length; i++) {
                         var filterName = filters[i]['name'];
                         var filterJQL = filters[i]['jql'];
+                        var filterID = filters[i]['id'];
 
-                        var closure = function (filterName, filterJQL) {
+                        var closure = function (filterName, filterJQL, filterID) {
                             var $a = $('<a/>').attr({
                                 href: '#'
                             }).html(filterName).tap(function (e) {
                                 e.preventDefault();
-                                selectedFilter.filterName = filterName;
-                                selectedFilter.filterJQL = filterJQL;
+                                selectedFilter = {
+                                    filterName: filterName,
+                                    filterJQL: filterJQL,
+                                    filterID: filterID
+                                };
                                 $( "body" ).pagecontainer( "change", "#issues");
                                 
                             });
                             $list.append($('<li/>').html($a));
-                        }(filterName, filterJQL);
+                        }(filterName, filterJQL, filterID);
 
                     }
                     $list.listview('refresh');
-                    hideNotification();
                 },
                 error: function (data) {
                     console.log('Error while retrieving filters.');
                     console.log(data);
+                },
+                complete: function (data) {
                     hideNotification();
                 }
             });
+        }
+
+        function showIssues() {
+            if (selectedFilter !== null) {
+                $('#filter-name-field').val(selectedFilter.filterName);
+                $('#jql-textarea').val(selectedFilter.filterJQL);
+                $('#filter-name a').text(selectedFilter.filterName);    
+            }
+            $('#filter-collapsible').collapsible("expand");
+            filterIssues();
         }
 
         function showIssue() {
@@ -228,9 +249,6 @@
         function filterIssues() {
             var $table = $('#issues-table');
             var $tableBody = $table.find('tbody');
-            $('#filter-name-field').val(selectedFilter.filterName)
-            $('#jql-textarea').html(selectedFilter.filterJQL);
-            $('#filter-collapsible').collapsible("expand");
             // escaping JQL twice because PHP proxy script unescapes GET params
             var jql = escape($('#jql-textarea').val());
             if (jql.trim() != '') {
@@ -272,11 +290,12 @@
                             })(templateData.issues[i].key);
                         }
                         $table.table('refresh');
-                        hideNotification();
                     },
                     error: function (data) {
                         console.log('Error while retrieving issues.');
                         console.log(data);
+                    },
+                    complete: function (data) {
                         hideNotification();
                     }
                 });
@@ -312,12 +331,92 @@
                 showNotification("Filter name is not specified.", true, 4000);
                 return;
             }
-            var filterJQL = $('#jql-textarea').html();
+            var filterJQL = $('#jql-textarea').val().trim();
             if (filterJQL === '') {
                 showNotification("JQL is not specified.", true, 4000);
                 return;
             }
-            // TODO: send ajax request to save filter or save as if name is changed
+            // TODO: send ajax request to check if filter with such name exists. If not then save otherwise save as.
+            showNotification();
+            if (selectedFilter !== null) {
+                updateFilter(filterName, filterJQL, selectedFilter.filterID);
+            } else {
+                createNewFilter(filterName, filterJQL);
+            }
+        }
+
+        function createNewFilter(filterName, filterJQL) {
+            $.ajax({
+                type: "POST",
+                url: getUrl(jiraLink + FILTER_BY_ID_LINK),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: {
+                    "name": filterName,
+                    "jql": filterJQL,
+                    "favourite": true
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', authHeaderValue);
+                },
+                success: function (data, status, xhr) {
+                    console.log(data);
+                    if (xhr.status - xhr.status % 200 == 200) {
+                        showNotification("Filter was created.", true, 4000);
+                    } else {
+                        showNotification("Couldn't create filter.", true, 4000);
+                    }
+                },
+                error: function (data) {
+                    console.log('Error while creating new filter.');
+                    console.log(data);
+                    hideNotification();
+                }
+            });
+        }
+
+        function updateFilter(filterName, filterJQL, filterID) {
+            $.ajax({
+                type: "PUT",
+                url: getUrl(jiraLink + FILTER_BY_ID_LINK + '/' + filterID),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: {
+                    "name": filterName,
+                    "jql": filterJQL,
+                    "favourite": true
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', authHeaderValue);
+                },
+                success: function (data, status, xhr) {
+                    console.log(status);
+                    console.log(data);
+                    if (xhr.status - xhr.status % 200 == 200) {
+                        selectedFilter = {
+                            filterName: filterName,
+                            filterJQL: filterJQL,
+                            filterID: filterID
+                        };
+                        showNotification("Filter was updated.", true, 4000);
+                    } else if (xhr.status == 400) {
+                        showNotification("Couldn't update filter.", true, 4000);
+                    }
+                },
+                error: function (data) {
+                    console.log('Error while updating filter.');
+                    console.log(data);
+                    hideNotification();
+                }
+            });
+        }
+
+        function clearFilter() {
+            $('#filter-name-field').val('');
+            $('#jql-textarea').val('');
+            $('#filter-name a').text("New filter");
+            selectedFilter = null;
+            filterIssues();
         }
 
         function loadSettings(e) {
