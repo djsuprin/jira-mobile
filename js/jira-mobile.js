@@ -37,9 +37,7 @@
                 filterIssues();
             });
 
-            $('#save-filter-button').tap(function (e) {
-                saveFilter();
-            });
+            $('#save-filter-button').tap(onSaveFilterButtonClick);
 
             $('#new-filter-button').tap(function (e) {
                 clearFilter();
@@ -325,7 +323,7 @@
             $( "body" ).pagecontainer( "change", "#projects");
         }
 
-        function saveFilter() {
+        function onSaveFilterButtonClick(e) {
             var filterName = $('#filter-name-field').val().trim();
             if (filterName === '') {
                 showNotification("Filter name is not specified.", true, 4000);
@@ -341,11 +339,11 @@
             if (selectedFilter !== null) {
                 updateFilter(filterName, filterJQL, selectedFilter.filterID);
             } else {
-                createNewFilter(filterName, filterJQL);
+                createFilter(filterName, filterJQL);
             }
         }
 
-        function createNewFilter(filterName, filterJQL) {
+        function createFilter(filterName, filterJQL) {
             $.ajax({
                 type: "POST",
                 url: getUrl(jiraLink + FILTER_BY_ID_LINK),
