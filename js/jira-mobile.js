@@ -75,13 +75,14 @@
             showNotification();
             var data = getProjects(displayProjects);
             if (typeof data !== 'undefined') {
+                console.log('Displaying cached projects');
                 displayProjects(data);
                 hideNotification();
             }
         }
 
         function getProjects(onSuccess) {
-            cachedData = localStorage['projects'];
+            cachedData = JSON.parse(localStorage['projects']);
             if (typeof cachedData !== 'undefined') {
                 console.log("Using cached data");
                 console.log(cachedData);
@@ -95,7 +96,7 @@
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
                 success: [function(data) {
-                    localStorage.setItem('projects', data);
+                    localStorage.setItem('projects', JSON.stringify(data));
                 }, onSuccess],
                 error: function (data) {
                     console.log('Error while retrieving projects.');
@@ -121,7 +122,7 @@
         }
 
         function showFilters() {
-            cachedData = localStorage['filters'];
+            cachedData = JSON.parse(localStorage['filters']);
             if (typeof cachedData !== 'undefined') {
                 displayFilters(cachedData);
                 return;
@@ -135,7 +136,7 @@
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
                 success: [function (data) {
-                    localStorage.setItem('filters', data);
+                    localStorage.setItem('filters', JSON.stringify(data));
                 }, displayFilters],
                 error: function (data) {
                     console.log('Error while retrieving filters.');
