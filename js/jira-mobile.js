@@ -71,7 +71,16 @@
             }
         }
 
-        function getProjects(onSuccess, onError, onComplete) {
+        function showProjectsPage() {
+            showNotification();
+            var data = getProjects(displayProjects);
+            if (typeof data !== 'undefined') {
+                displayProjects(data);
+                hideNotification();
+            }
+        }
+
+        function getProjects(onSuccess) {
             cachedData = localStorage['projects'];
             if (typeof cachedData !== 'undefined') {
                 console.log("Using cached data");
@@ -85,43 +94,38 @@
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
-                success: onSuccess,
-                error: onError,
-                complete: onComplete
+                success: [function(data) {
+                    localStorage.setItem('projects', data);
+                }, onSuccess],
+                error: function (data) {
+                    console.log('Error while retrieving projects.');
+                    console.log(data);
+                    hideNotification();
+                }
             });
         }
 
-        function showProjectsPage() {
-            showNotification();
-            var displayProjects = function (data) {
-                // if not cached then cache it
-                if (typeof localStorage['projects'] === 'undefined') localStorage.setItem('projects', data);
-                var $list = $('#projects-list');
-                $list.html('');
-                if (data == null || !(data instanceof Array)) return;
-                var projects = data;
-                for (var i = 0; i < projects.length; i++) {
-                    var $a = $('<a/>').attr({
-                        href: '#'
-                    }).html(projects[i]['name']);
-                    $list.append($('<li/>').html($a));
-                }
-                $list.listview('refresh');
-                hideNotification();
-            };
-            var displayError = function (data) {
-                console.log('Error while retrieving projects.');
-                console.log(data);
-                hideNotification();
+        function displayProjects(data) {
+            var $list = $('#projects-list');
+            $list.html('');
+            if (data == null || !(data instanceof Array)) return;
+            var projects = data;
+            for (var i = 0; i < projects.length; i++) {
+                var $a = $('<a/>').attr({
+                    href: '#'
+                }).html(projects[i]['name']);
+                $list.append($('<li/>').html($a));
             }
-            var data = getProjects(displayProjects, displayError);
-            if (typeof data !== 'undefined') {
-                displayProjects(data);
-            }
-
+            $list.listview('refresh');
+            hideNotification();
         }
 
         function showFilters() {
+            cachedData = localStorage['filters'];
+            if (typeof cachedData !== 'undefined') {
+                displayFilters(cachedData);
+                return;
+            }
             showNotification();
             $.ajax({
                 type: "GET",
@@ -130,35 +134,9 @@
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
-                success: function (data) {
-                    var $list = $('#filters-list');
-                    $list.html('');
-                    if (data == null) return;
-                    var filters = data;
-                    for (var i = 0; i < filters.length; i++) {
-                        var filterName = filters[i]['name'];
-                        var filterJQL = filters[i]['jql'];
-                        var filterID = filters[i]['id'];
-
-                        var closure = function (filterName, filterJQL, filterID) {
-                            var $a = $('<a/>').attr({
-                                href: '#'
-                            }).html(filterName).tap(function (e) {
-                                e.preventDefault();
-                                selectedFilter = {
-                                    filterName: filterName,
-                                    filterJQL: filterJQL,
-                                    filterID: filterID
-                                };
-                                $( "body" ).pagecontainer( "change", "#issues");
-                                
-                            });
-                            $list.append($('<li/>').html($a));
-                        }(filterName, filterJQL, filterID);
-
-                    }
-                    $list.listview('refresh');
-                },
+                success: [function (data) {
+                    localStorage.setItem('filters', data);
+                }, displayFilters],
                 error: function (data) {
                     console.log('Error while retrieving filters.');
                     console.log(data);
@@ -167,6 +145,36 @@
                     hideNotification();
                 }
             });
+        }
+
+        function displayFilters(data) {
+            var $list = $('#filters-list');
+            $list.html('');
+            if (data == null) return;
+            var filters = data;
+            for (var i = 0; i < filters.length; i++) {
+                var filterName = filters[i]['name'];
+                var filterJQL = filters[i]['jql'];
+                var filterID = filters[i]['id'];
+
+                var closure = function (filterName, filterJQL, filterID) {
+                    var $a = $('<a/>').attr({
+                        href: '#'
+                    }).html(filterName).tap(function (e) {
+                        e.preventDefault();
+                        selectedFilter = {
+                            filterName: filterName,
+                            filterJQL: filterJQL,
+                            filterID: filterID
+                        };
+                        $( "body" ).pagecontainer( "change", "#issues");
+                        
+                    });
+                    $list.append($('<li/>').html($a));
+                }(filterName, filterJQL, filterID);
+
+            }
+            $list.listview('refresh');
         }
 
         function showIssues() {
@@ -233,12 +241,7 @@
 
         function showIssueForm() {
             showNotification();
-            var displayError = function (data) {
-                console.log('Error while retrieving issue create metadata.');
-                console.log(data);
-                hideNotification();
-            };
-            var data = getProjects(displayIssueForm, displayError);
+            var data = getProjects(displayIssueForm);
             if (typeof data !== 'undefined') {
                 displayIssueForm(data);
             }
@@ -246,6 +249,8 @@
 
         function displayIssueForm(data) {
             // TODO: get project id from data
+            console.log("Projects:");
+            console.log(data);
             $.ajax({
                 type: "GET",
                 url: jiraLink + ISSUE_CREATEMETA_LINK,
@@ -255,6 +260,7 @@
                 },
                 success: function (data) {
                     localStorage.setItem(url, JSON.stringify(data));
+                    console.log("Create issue meta:");
                     console.log(data);
                 },
                 error: function (data) {
