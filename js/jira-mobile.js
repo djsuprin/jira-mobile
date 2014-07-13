@@ -2,17 +2,17 @@
 
     (function () {
 
-        var DO_PROXY            = false,
-            SECONDS_IN_WORKDAY  = 28800, // 8 hours workday
+        var SECONDS_IN_WORKDAY      = 28800, // 8 hours workday
             // REST API links
-            PROJECTS_LINK       = '/rest/api/latest/project',
-            FILTERS_LINK        = '/rest/api/latest/filter/favourite',
-            ISSUES_LINK         = '/rest/api/latest/search?jql=',
-            ISSUE_LINK          = '/rest/api/latest/issue/',
-            FILTER_BY_ID_LINK   = '/rest/api/latest/filter',
+            PROJECTS_LINK           = '/rest/api/latest/project',
+            FILTERS_LINK            = '/rest/api/latest/filter/favourite',
+            ISSUES_LINK             = '/rest/api/latest/search?jql=',
+            ISSUE_LINK              = '/rest/api/latest/issue/',
+            ISSUE_CREATEMETA_LINK   = '/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys=ENS',
+            FILTER_BY_ID_LINK       = '/rest/api/latest/filter',
             // Authentication settings
-            jiraLink            = localStorage.getItem('jiraLink'),
-            authHeaderValue     = localStorage.getItem('authHeaderValue'),
+            jiraLink                = localStorage.getItem('jiraLink'),
+            authHeaderValue         = localStorage.getItem('authHeaderValue'),
             // Variables containing current state of app components
             selectedFilter = null, /* {
                 'filterName': '',
@@ -55,68 +55,82 @@
         $(document).on( "pagecontainershow", function(e, ui) {
             var pageId = ui.toPage.attr("id");
             switch (pageId) {
-                case "dashboard": showDashboard(); break;
+                case "dashboard": showDashboardPage(); break;
                 case "settings": loadSettings(); break;
-                case "projects": showProjects(); break;
+                case "projects": showProjectsPage(); break;
                 case "filters": showFilters(); break;
                 case "issues": showIssues(); break;
                 case "issue": showIssue(); break;
+                case "issue-form": showIssueForm(); break;
             }
         });
 
-        function showDashboard() {
+        function showDashboardPage() {
             if (jiraLink == null || jiraLink == '' || authHeaderValue == null || authHeaderValue == '') {
                 $( "body" ).pagecontainer( "change", "#settings");
             }
         }
 
-        function showProjects() {
-            showNotification();
+        function getProjects(onSuccess, onError, onComplete) {
+            cachedData = localStorage['projects'];
+            if (typeof cachedData !== 'undefined') {
+                console.log("Using cached data");
+                console.log(cachedData);
+                return cachedData;
+            }
             $.ajax({
                 type: "GET",
-                url: getUrl(jiraLink + PROJECTS_LINK),
+                url: jiraLink + PROJECTS_LINK,
                 dataType: 'json',
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
-                success: function (data) {
-                    if (DO_PROXY) {
-                        data = data.contents
-                    }
-                    var $list = $('#projects-list');
-                    $list.html('');
-                    if (data == null || !(data instanceof Array)) return;
-                    var projects = data;
-                    for (var i = 0; i < projects.length; i++) {
-                        var $a = $('<a/>').attr({
-                            href: '#'
-                        }).html(projects[i]['name']);
-                        $list.append($('<li/>').html($a));
-                    }
-                    $list.listview('refresh');
-                    hideNotification();
-                },
-                error: function (data) {
-                    console.log('Error while retrieving projects.');
-                    console.log(data);
-                    hideNotification();
-                }
+                success: onSuccess,
+                error: onError,
+                complete: onComplete
             });
+        }
+
+        function showProjectsPage() {
+            showNotification();
+            var displayProjects = function (data) {
+                // if not cached then cache it
+                if (typeof localStorage['projects'] === 'undefined') localStorage.setItem('projects', data);
+                var $list = $('#projects-list');
+                $list.html('');
+                if (data == null || !(data instanceof Array)) return;
+                var projects = data;
+                for (var i = 0; i < projects.length; i++) {
+                    var $a = $('<a/>').attr({
+                        href: '#'
+                    }).html(projects[i]['name']);
+                    $list.append($('<li/>').html($a));
+                }
+                $list.listview('refresh');
+                hideNotification();
+            };
+            var displayError = function (data) {
+                console.log('Error while retrieving projects.');
+                console.log(data);
+                hideNotification();
+            }
+            var data = getProjects(displayProjects, displayError);
+            if (typeof data !== 'undefined') {
+                displayProjects(data);
+            }
+
         }
 
         function showFilters() {
             showNotification();
             $.ajax({
                 type: "GET",
-                url: getUrl(jiraLink + FILTERS_LINK),
+                url: jiraLink + FILTERS_LINK,
                 dataType: 'json',
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
                 success: function (data) {
-                    if (DO_PROXY) {
-                        data = data.contents
-                    }
                     var $list = $('#filters-list');
                     $list.html('');
                     if (data == null) return;
@@ -171,15 +185,12 @@
             showNotification();
             $.ajax({
                 type: "GET",
-                url: getUrl(jiraLink + ISSUE_LINK + currentIssueKey),
+                url: jiraLink + ISSUE_LINK + currentIssueKey,
                 dataType: 'json',
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', authHeaderValue);
                 },
                 success: function (data) {
-                    if (DO_PROXY) {
-                        data = data.contents;
-                    }
                     var issueFields = data['fields'];
                     var issue = {
                         description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
@@ -219,6 +230,42 @@
                 }
             });
         }
+
+        function showIssueForm() {
+            showNotification();
+            var displayError = function (data) {
+                console.log('Error while retrieving issue create metadata.');
+                console.log(data);
+                hideNotification();
+            };
+            var data = getProjects(displayIssueForm, displayError);
+            if (typeof data !== 'undefined') {
+                displayIssueForm(data);
+            }
+        }
+
+        function displayIssueForm(data) {
+            // TODO: get project id from data
+            $.ajax({
+                type: "GET",
+                url: jiraLink + ISSUE_CREATEMETA_LINK,
+                dataType: 'json',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', authHeaderValue);
+                },
+                success: function (data) {
+                    localStorage.setItem(url, JSON.stringify(data));
+                    console.log(data);
+                },
+                error: function (data) {
+                    console.log('Error while retrieving issues.');
+                    console.log(data);
+                },
+                complete: function (data) {
+                    hideNotification();
+                }
+            });
+        }
         
         function createButtonsFromArray(elements, placeholderSelector) {
             if (typeof elements !== 'undefined' && elements !== null && elements.length > 0) {
@@ -253,15 +300,12 @@
                 showNotification();
                 $.ajax({
                     type: "GET",
-                    url: getUrl(jiraLink + ISSUES_LINK + jql),
+                    url: jiraLink + ISSUES_LINK + jql,
                     dataType: 'json',
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('Authorization', authHeaderValue);
                     },
                     success: function (data) {
-                        if (DO_PROXY) {
-                            data = data.contents
-                        }
                         var templateData = { issues : [] };
                         $tableBody.html('');
                         var issues = data['issues'];
@@ -301,14 +345,6 @@
                 $tableBody.html('');
             }
         }
-
-        function getUrl(url) {
-            if (DO_PROXY) {
-                var proxyUrl = "proxy.php?url=" + escape(url);
-                return proxyUrl;
-            }
-            return url;
-        }
         
         function saveSettings(e) {
             e.preventDefault();
@@ -346,7 +382,7 @@
         function createFilter(filterName, filterJQL) {
             $.ajax({
                 type: "POST",
-                url: getUrl(jiraLink + FILTER_BY_ID_LINK),
+                url: jiraLink + FILTER_BY_ID_LINK,
                 dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 data: {
@@ -376,7 +412,7 @@
         function updateFilter(filterName, filterJQL, filterID) {
             $.ajax({
                 type: "PUT",
-                url: getUrl(jiraLink + FILTER_BY_ID_LINK + '/' + filterID),
+                url: jiraLink + FILTER_BY_ID_LINK + '/' + filterID,
                 dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 data: {

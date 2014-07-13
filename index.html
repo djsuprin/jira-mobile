@@ -211,7 +211,10 @@
             </div>
             <div data-role="content">
                 <label for="issue-summary-field">Project:</label>
-                <input type="text" name="issue-project-field" id="issue-project-field" value="">
+                <select name="issue-project-select" id="issue-project-select" data-native-menu="false">
+                    <option value="ENS">Engineering Support</option>
+                    <option value="SOFT">Software Infrastructure</option>
+                </select>
                 <label for="issue-summary-field">Summary:</label>
                 <input type="text" name="issue-summary-field" id="issue-summary-field" value="">
                 <label for="issue-type-select" class="select">Type:</label>
