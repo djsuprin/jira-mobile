@@ -1,0 +1,31 @@
+.issue-grid > .ui-block-a,
+.issue-grid > .ui-block-b,
+.issue-grid > .ui-block-c {
+	width: 100%;
+	float: none;
+}
+
+@media all and (min-width: 55em) {
+
+	.issue-grid > .ui-block-a,
+    .issue-grid > .ui-block-b {
+      float: left;
+      width: 50%;
+      padding-right: 1%;
+    }
+
+    .issue-grid > .ui-block-c {
+    	clear: both;
+    	width: 100%;
+    }
+}
+
+@media all and (min-width: 75em) {
+	.issue-grid > .ui-block-a,
+    .issue-grid > .ui-block-b,
+    .issue-grid > .ui-block-c {
+    	width: 33%;
+	    float: left;
+	    clear: none;
+    }
+}
