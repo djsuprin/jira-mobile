@@ -82,11 +82,10 @@
         }
 
         function getProjects(onSuccess) {
-            cachedData = JSON.parse(localStorage['projects']);
-            if (typeof cachedData !== 'undefined') {
+            if (typeof localStorage['projects'] !== 'undefined') {
                 console.log("Using cached data");
-                console.log(cachedData);
-                return cachedData;
+                console.log(localStorage['projects']);
+                return JSON.parse(localStorage['projects']);
             }
             $.ajax({
                 type: "GET",
@@ -122,9 +121,8 @@
         }
 
         function showFilters() {
-            cachedData = JSON.parse(localStorage['filters']);
-            if (typeof cachedData !== 'undefined') {
-                displayFilters(cachedData);
+            if (typeof localStorage['filters'] !== 'undefined') {
+                displayFilters(JSON.parse(localStorage['filters']));
                 return;
             }
             showNotification();
@@ -299,58 +297,68 @@
         }
 
         function filterIssues() {
-            var $table = $('#issues-table');
-            var $tableBody = $table.find('tbody');
             // escaping JQL twice because PHP proxy script unescapes GET params
             var jql = escape($('#jql-textarea').val());
             if (jql.trim() != '') {
+                if (typeof localStorage[jql] !== 'undefined') {
+                    displayIssues(JSON.parse(localStorage[jql]));
+                    return;
+                }
                 showNotification();
-                $.ajax({
-                    type: "GET",
-                    url: jiraLink + ISSUES_LINK + jql,
-                    dataType: 'json',
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', authHeaderValue);
-                    },
-                    success: function (data) {
-                        var templateData = { issues : [] };
-                        $tableBody.html('');
-                        var issues = data['issues'];
-                        for (var i = 0; i < issues.length; i++) {
-                            var issue = {
-                                'type': issues[i]['fields']['issuetype'] == null ? null : issues[i]['fields']['issuetype']['name'],
-                                'key': issues[i]['key'],
-                                'summary': issues[i]['fields']['summary'],
-                                'priority': issues[i]['fields']['priority'] == null ? null : issues[i]['fields']['priority']['name'],
-                                'status': issues[i]['fields']['status'] == null ? null : issues[i]['fields']['status']['name']
-                            };
-                            templateData.issues.push(issue);
+                (function(jql) {
+                    $.ajax({
+                        type: "GET",
+                        url: jiraLink + ISSUES_LINK + jql,
+                        dataType: 'json',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('Authorization', authHeaderValue);
+                        },
+                        success: [function (data) {
+                            localStorage.setItem(jql, JSON.stringify(data));
+                        }, displayIssues],
+                        error: function (data) {
+                            console.log('Error while retrieving issues.');
+                            console.log(data);
+                        },
+                        complete: function (data) {
+                            hideNotification();
                         }
-                        var tableBodyHtml = Mustache.to_html($('#issues-table-rows-tpl').html(), templateData);
-                        $tableBody.html(tableBodyHtml);
-                        for (var i = 0; i < templateData.issues.length; i++) {
-                            (function (issueKey) {
-                                var row = $("#issues-table > tbody > tr").get(i);
-                                $(row).find("a").tap(function (e) {
-                                    e.preventDefault();
-                                    currentIssueKey = issueKey;
-                                    $( "body" ).pagecontainer( "change", "#issue" );
-                                });
-                            })(templateData.issues[i].key);
-                        }
-                        $table.table('refresh');
-                    },
-                    error: function (data) {
-                        console.log('Error while retrieving issues.');
-                        console.log(data);
-                    },
-                    complete: function (data) {
-                        hideNotification();
-                    }
-                });
+                    });
+                })(jql);
             } else {
-                $tableBody.html('');
+                $('#issues-table > tbody').html('');
             }
+        }
+
+        function displayIssues(data) {
+            var $table = $('#issues-table');
+            var $tableBody = $table.find('tbody');
+            var templateData = { issues : [] };
+            $tableBody.html('');
+            var issues = data['issues'];
+            for (var i = 0; i < issues.length; i++) {
+                var issue = {
+                    'type': issues[i]['fields']['issuetype'] == null ? null : issues[i]['fields']['issuetype']['name'],
+                    'key': issues[i]['key'],
+                    'summary': issues[i]['fields']['summary'],
+                    'priority': issues[i]['fields']['priority'] == null ? null : issues[i]['fields']['priority']['name'],
+                    'status': issues[i]['fields']['status'] == null ? null : issues[i]['fields']['status']['name']
+                };
+                templateData.issues.push(issue);
+            }
+            var tableBodyHtml = Mustache.to_html($('#issues-table-rows-tpl').html(), templateData);
+            $tableBody.html(tableBodyHtml);
+            for (var i = 0; i < templateData.issues.length; i++) {
+                (function (issueKey) {
+                    var row = $("#issues-table > tbody > tr").get(i);
+                    $(row).find("a").tap(function (e) {
+                        e.preventDefault();
+                        currentIssueKey = issueKey;
+                        $( "body" ).pagecontainer( "change", "#issue" );
+                    });
+                })(templateData.issues[i].key);
+            }
+            $table.table('refresh');
         }
         
         function saveSettings(e) {
