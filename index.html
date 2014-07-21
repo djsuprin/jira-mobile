@@ -4,6 +4,7 @@
         <title>EN-ICE JIRA</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
+        <link rel="stylesheet" href="css/jira-mobile.css" />
     </head>
 
     <script id="issues-table-rows-tpl" type="text/html">
@@ -110,99 +111,107 @@
                 <a href="#menu_panel" data-icon="grid">Menu</a>
                 <h1 id="issue-page-title">Issue</h1>
             </div>
-            <div data-role="content">
-                <div data-role="collapsible" data-inset="false" id="issue-details-collapsible">
-                    <h3>Details</h3>
-                    <p>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Summary</div>
-                        <div class="ui-block-b" id="issue-summary"></div>
+            <div role="main" class="ui-content">
+                <div class="ui-grid-b ui-responsive">
+                    <div class="left-column ui-block-a">
+                        <div data-role="collapsible" id="issue-details-collapsible">
+                            <h3>Details</h3>
+                            <p>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Summary</div>
+                                <div class="ui-block-b" id="issue-summary"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Type</div>
+                                <div class="ui-block-b" id="issue-type"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Status</div>
+                                <div class="ui-block-b" id="issue-status"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Resolution</div>
+                                <div class="ui-block-b" id="issue-resolution"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Priority</div>
+                                <div class="ui-block-b" id="issue-priority"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Assignee</div>
+                                <div class="ui-block-b" id="issue-assignee"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Reporter</div>
+                                <div class="ui-block-b" id="issue-reporter"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Affects Version/s</div>
+                                <div class="ui-block-b" id="issue-affects-versions"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Fix Version/s</div>
+                                <div class="ui-block-b" id="issue-fix-versions"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Component/s</div>
+                                <div class="ui-block-b" id="issue-components"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Labels</div>
+                                <div class="ui-block-b" id="issue-labels"></div>
+                            </div>
+                            </p>
+                        </div>
+                        <!-- /collapsible -->
                     </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Type</div>
-                        <div class="ui-block-b" id="issue-type"></div>
+                    <div class="center-column ui-block-b">
+                        <div data-role="collapsible">
+                            <h3>Description</h3>
+                            <p>
+                            <div id="issue-description"></div>
+                            </p>
+                        </div>
+                        <!-- /collapsible -->
+                        <div data-role="collapsible">
+                            <h3>Dates and time tracking</h3>
+                            <p>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Created</div>
+                                <div class="ui-block-b" id="issue-created"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Updated</div>
+                                <div class="ui-block-b" id="issue-updated"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Due date</div>
+                                <div class="ui-block-b" id="issue-due-date"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Estimated</div>
+                                <div class="ui-block-b" id="issue-estimated"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Remaining</div>
+                                <div class="ui-block-b" id="issue-remaining"></div>
+                            </div>
+                            <div class="ui-grid-a">
+                                <div class="ui-block-a">Logged</div>
+                                <div class="ui-block-b" id="issue-logged"></div>
+                            </div>
+                            </p>
+                        </div>
+                        <!-- /collapsible -->
                     </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Status</div>
-                        <div class="ui-block-b" id="issue-status"></div>
+                    <div class="right-column ui-block-c">
+                        <div data-role="collapsible">
+                            <h3>Comments</h3>
+                            <p>List of comments</p>
+                        </div>
+                        <!-- /collapsible -->
                     </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Resolution</div>
-                        <div class="ui-block-b" id="issue-resolution"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Priority</div>
-                        <div class="ui-block-b" id="issue-priority"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Assignee</div>
-                        <div class="ui-block-b" id="issue-assignee"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Reporter</div>
-                        <div class="ui-block-b" id="issue-reporter"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Affects Version/s</div>
-                        <div class="ui-block-b" id="issue-affects-versions"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Fix Version/s</div>
-                        <div class="ui-block-b" id="issue-fix-versions"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Component/s</div>
-                        <div class="ui-block-b" id="issue-components"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Labels</div>
-                        <div class="ui-block-b" id="issue-labels"></div>
-                    </div>
-                    </p>
                 </div>
-                <!-- /collapsible -->
-                <div data-role="collapsible" data-inset="false">
-                    <h3>Description</h3>
-                    <p>
-                    <div id="issue-description"></div>
-                    </p>
-                </div>
-                <!-- /collapsible -->
-                <div data-role="collapsible" data-inset="false">
-                    <h3>Dates and time tracking</h3>
-                    <p>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Created</div>
-                        <div class="ui-block-b" id="issue-created"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Updated</div>
-                        <div class="ui-block-b" id="issue-updated"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Due date</div>
-                        <div class="ui-block-b" id="issue-due-date"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Estimated</div>
-                        <div class="ui-block-b" id="issue-estimated"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Remaining</div>
-                        <div class="ui-block-b" id="issue-remaining"></div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Logged</div>
-                        <div class="ui-block-b" id="issue-logged"></div>
-                    </div>
-                    </p>
-                </div>
-                <!-- /collapsible -->
-                <div data-role="collapsible" data-inset="false">
-                    <h3>Comments</h3>
-                    <p>List of comments</p>
-                </div>
-                <!-- /collapsible -->
             </div>
         </div>
         <div data-role="page" id="issue-form">
@@ -258,7 +267,7 @@
                 </p>
                 <p>
                     <a href="#" data-role="button" id="save-settings-button">Save</a>
-                    <a href="#" data-role="button" id="clear-credentials-button">Clear</a>
+                    <a href="#" data-role="button" id="clear-cached-data-button">Clear</a>
                 </p>
             </div>
         </div>

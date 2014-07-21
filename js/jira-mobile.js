@@ -27,7 +27,7 @@
 
             $('#save-settings-button').tap(saveSettings);
 
-            $('#clear-credentials-button').tap(function (e) {
+            $('#clear-cached-data-button').tap(function (e) {
                 e.preventDefault();
                 localStorage.clear();
             });
@@ -189,53 +189,64 @@
         function showIssue() {
             $('#issue').find('#issue-page-title').html(currentIssueKey);
             $('#issue-details-collapsible').collapsible("expand");
+            if (typeof localStorage[currentIssueKey] !== 'undefined') {
+                console.log(localStorage[currentIssueKey]);
+                displayIssue(JSON.parse(localStorage[currentIssueKey]));
+                return;
+            }
             showNotification();
-            $.ajax({
-                type: "GET",
-                url: jiraLink + ISSUE_LINK + currentIssueKey,
-                dataType: 'json',
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('Authorization', authHeaderValue);
-                },
-                success: function (data) {
-                    var issueFields = data['fields'];
-                    var issue = {
-                        description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
-                        resolution: (issueFields['resolution'] !== undefined && issueFields['resolution'] !== null) ? 
-                                issueFields['resolution']['name'] : 'Unresolved',
-                        created: new Date(issueFields['created']).toLocaleString(),
-                        updated: new Date(issueFields['updated']).toLocaleString(),
-                        duedate: new Date(issueFields['duedate']).toLocaleString()
+            (function(currentIssueKey) {
+                $.ajax({
+                    type: "GET",
+                    url: jiraLink + ISSUE_LINK + currentIssueKey,
+                    dataType: 'json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', authHeaderValue);
+                    },
+                    success: [function (data) {
+                        localStorage.setItem(currentIssueKey, JSON.stringify(data));
+                    }, displayIssue],
+                    error: function (data) {
+                        console.log('Error while retrieving issue info.');
+                        console.log(data);
+                        hideNotification();
                     }
+                });
+            })(currentIssueKey);
+        }
 
-                    $('#issue-summary').html(issueFields['summary']);
-                    $('#issue-type').html(issueFields['issuetype']['name']);
-                    $('#issue-status').html(issueFields['status']['name']);
-                    $('#issue-resolution').html(issue['resolution']);
-                    $('#issue-priority').html(issueFields['priority']['name']);
-                    $('#issue-assignee').html(issueFields['assignee']['displayName']);
-                    $('#issue-reporter').html(issueFields['reporter']['displayName']);
+        function displayIssue(data) {
+            var issueFields = data['fields'];
+            var issue = {
+                description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
+                resolution: (issueFields['resolution'] !== undefined && issueFields['resolution'] !== null) ? 
+                        issueFields['resolution']['name'] : 'Unresolved',
+                created: new Date(issueFields['created']).toLocaleString(),
+                updated: new Date(issueFields['updated']).toLocaleString(),
+                duedate: new Date(issueFields['duedate']).toLocaleString()
+            }
 
-                    createButtonsFromArray(issueFields['versions'], '#issue-affects-versions');
-                    createButtonsFromArray(issueFields['fixVersions'], '#issue-fix-versions');
-                    createButtonsFromArray(issueFields['components'], '#issue-components');
-                    createButtonsFromArray(issueFields['labels'], '#issue-labels');
+            $('#issue-summary').html(issueFields['summary']);
+            $('#issue-type').html(issueFields['issuetype']['name']);
+            $('#issue-status').html(issueFields['status']['name']);
+            $('#issue-resolution').html(issue['resolution']);
+            $('#issue-priority').html(issueFields['priority']['name']);
+            $('#issue-assignee').html(issueFields['assignee']['displayName']);
+            $('#issue-reporter').html(issueFields['reporter']['displayName']);
 
-                    $('#issue-description').html(wiki2html(issue['description']));
-                    $('#issue-created').html(issue['created']);
-                    $('#issue-updated').html(issue['updated']);
-                    $('#issue-due-date').html(issue['duedate']);
-                    $('#issue-estimated').html(issueFields['timetracking']['originalEstimate']);
-                    $('#issue-remaining').html(issueFields['timetracking']['remainingEstimate']);
-                    $('#issue-logged').html(issueFields['timetracking']['timeSpent']);
-                    hideNotification();
-                },
-                error: function (data) {
-                    console.log('Error while retrieving issue info.');
-                    console.log(data);
-                    hideNotification();
-                }
-            });
+            createButtonsFromArray(issueFields['versions'], '#issue-affects-versions');
+            createButtonsFromArray(issueFields['fixVersions'], '#issue-fix-versions');
+            createButtonsFromArray(issueFields['components'], '#issue-components');
+            createButtonsFromArray(issueFields['labels'], '#issue-labels');
+
+            $('#issue-description').html(wiki2html(issue['description']));
+            $('#issue-created').html(issue['created']);
+            $('#issue-updated').html(issue['updated']);
+            $('#issue-due-date').html(issue['duedate']);
+            $('#issue-estimated').html(issueFields['timetracking']['originalEstimate']);
+            $('#issue-remaining').html(issueFields['timetracking']['remainingEstimate']);
+            $('#issue-logged').html(issueFields['timetracking']['timeSpent']);
+            hideNotification();
         }
 
         function showIssueForm() {
