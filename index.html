@@ -115,7 +115,7 @@
                 <h2 id="issue-summary"></h2>
                 <div class="issue-grid">
                     <div class="ui-block-a">
-                        <div data-role="collapsible" id="issue-details-collapsible">
+                        <div data-role="collapsible" data-collapsed="false">
                             <h3>Details</h3>
                             <p>
                             <div class="ui-grid-a">
@@ -133,14 +133,6 @@
                             <div class="ui-grid-a">
                                 <div class="ui-block-a">Priority</div>
                                 <div class="ui-block-b" id="issue-priority"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Assignee</div>
-                                <div class="ui-block-b" id="issue-assignee"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Reporter</div>
-                                <div class="ui-block-b" id="issue-reporter"></div>
                             </div>
                             <div class="ui-grid-a">
                                 <div class="ui-block-a">Affects Version/s</div>
@@ -161,8 +153,6 @@
                             </p>
                         </div>
                         <!-- /collapsible -->
-                    </div>
-                    <div class="ui-block-b">
                         <div data-role="collapsible">
                             <h3>Description</h3>
                             <p>
@@ -170,7 +160,27 @@
                             </p>
                         </div>
                         <!-- /collapsible -->
-                        <div data-role="collapsible">
+                    </div>
+                    <div class="ui-block-b">
+                        <div data-role="collapsible" data-collapsed="false">
+                            <h3>People</h3>
+                            <p>                                
+                                <div class="ui-grid-a">
+                                    <div class="ui-block-a">Assignee</div>
+                                    <div class="ui-block-b" id="issue-assignee"></div>
+                                </div>
+                                <div class="ui-grid-a">
+                                    <div class="ui-block-a">Reporter</div>
+                                    <div class="ui-block-b" id="issue-reporter"></div>
+                                </div>
+                                <div class="ui-grid-a">
+                                    <div class="ui-block-a">Watchers</div>
+                                    <div class="ui-block-b" id="issue-watchers"></div>
+                                </div>
+                            </p>
+                        </div>
+                        <!-- /collapsible -->
+                        <div data-role="collapsible" data-collapsed="false">
                             <h3>Dates and time tracking</h3>
                             <p>
                             <div class="ui-grid-a">
@@ -202,7 +212,7 @@
                         <!-- /collapsible -->
                     </div>
                     <div class="ui-block-c">
-                        <div data-role="collapsible">
+                        <div data-role="collapsible" data-collapsed="false">
                             <h3>Comments</h3>
                             <p>List of comments</p>
                         </div>

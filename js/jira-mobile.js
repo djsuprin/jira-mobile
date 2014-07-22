@@ -188,7 +188,6 @@
 
         function showIssue() {
             $('#issue').find('#issue-page-title').html(currentIssueKey);
-            $('#issue-details-collapsible').collapsible("expand");
             if (typeof localStorage[currentIssueKey] !== 'undefined') {
                 console.log(localStorage[currentIssueKey]);
                 displayIssue(JSON.parse(localStorage[currentIssueKey]));

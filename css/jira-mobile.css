@@ -5,7 +5,7 @@
 	float: none;
 }
 
-@media all and (min-width: 55em) {
+@media all and (min-width: 36em) {
 
 	.issue-grid > .ui-block-a,
     .issue-grid > .ui-block-b {
@@ -20,7 +20,7 @@
     }
 }
 
-@media all and (min-width: 75em) {
+@media all and (min-width: 70em) {
 	.issue-grid > .ui-block-a,
     .issue-grid > .ui-block-b,
     .issue-grid > .ui-block-c {
