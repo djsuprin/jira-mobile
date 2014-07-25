@@ -5,6 +5,30 @@
 	float: none;
 }
 
+
+/* Issues list styles */
+.issues-table thead th,
+.issues-table tbody tr:last-child {
+    border-bottom: 1px solid #d6d6d6; /* non-RGBA fallback */
+    border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.issues-table tbody th,
+.issues-table tbody td {
+    border-bottom: 1px solid #e6e6e6; /* non-RGBA fallback  */
+    border-bottom: 1px solid rgba(0,0,0,.05);
+}
+.issues-table tbody tr:last-child th,
+.issues-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.issues-table tbody tr:nth-child(odd) td,
+.issues-table tbody tr:nth-child(odd) th {
+    background-color: #eeeeee; /* non-RGBA fallback  */
+    background-color: rgba(0,0,0,.04);
+}
+/* End of issues list styles */
+
+
 @media all and (min-width: 36em) {
 
 	.issue-grid > .ui-block-a,

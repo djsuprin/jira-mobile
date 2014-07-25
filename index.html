@@ -10,10 +10,10 @@
     <script id="issues-table-rows-tpl" type="text/html">
         {{#issues}}
         <tr>
-            <td class="issue-type">{{type}}</td>
             <td class="issue-key">
                 <a href="#">{{key}}</a>
             </td>
+            <td class="issue-type">{{type}}</td>
             <td class="issue-summary">
                 <a href="#">{{summary}}</a>
             </td>
@@ -43,7 +43,7 @@
         <div data-role="page" id="dashboard">
             <div data-role="header" data-theme="a">
                 <a href="#menu_panel" data-icon="grid">Menu</a>
-                <h1>EN-ICE JIRA Dashboard</h1>
+                <h1>Dashboard</h1>
                 <a href="#issue-form">Create issue</a>
             </div>
             <div data-role="content">
@@ -91,14 +91,14 @@
                         <a href="#" class="ui-btn ui-btn-inline ui-icon-plus ui-btn-icon-left" id="new-filter-button">New filter</a>
                     </p>
                 </div>
-                <table data-role="table" id="issues-table" data-mode="reflow" class="ui-responsive table-stroke issues-table">
+                <table data-role="table" id="issues-table" data-mode="reflow" class="ui-responsive issues-table">
                     <thead>
                         <tr>
-                            <th data-priority="1">Type</th>
-                            <th data-priority="persist">Key</th>
-                            <th data-priority="2">Summary</th>
-                            <th data-priority="3">Priority</th>
-                            <th data-priority="4">Status</th>
+                            <th data-priority="1">Key</th>
+                            <th data-priority="2">Type</th>
+                            <th data-priority="3">Summary</th>
+                            <th data-priority="4">Priority</th>
+                            <th data-priority="5">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,6 +122,15 @@
                                 <div class="ui-block-a">Type</div>
                                 <div class="ui-block-b" id="issue-type"></div>
                             </div>
+                            <!--div class="ui-field-contain">
+                                <label for="select-issue-type">Type:</label>
+                                <select data-native-menu="false" name="select-issue-type" id="select-issue-type">
+                                    <option value="">Types:</option>
+                                    <option value="incident">Incident</option>
+                                    <option value="bug" selected="selected">Bug</option>
+                                    <option value="new_feature">New Feature</option>
+                                </select>
+                            </div-->
                             <div class="ui-grid-a">
                                 <div class="ui-block-a">Status</div>
                                 <div class="ui-block-b" id="issue-status"></div>
