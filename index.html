@@ -29,6 +29,18 @@
         {{/fieldOptions}}
     </script>
 
+    <script id="issue-comments-tpl" type="text/html">
+        <ul data-role="listview" data-inset="false" id="issue-comments">
+        {{#comments}}
+            <li data-icon="false"><a href="#">
+                <img src="{{avatar}}">
+            <h2>{{author}}</h2>
+            <p style="white-space: normal;">{{comment}}</p></a>
+            </li>
+        {{/comments}}
+        </ul>
+    </script>
+
     <script type="text/javascript" src="phonegap.js"></script>
     <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="js/mustache.js"></script>
@@ -50,7 +62,7 @@
     <body>
         <div data-role="panel" id="menu_panel" data-display="push" data-position="left" data-theme="a">
             <ul data-role="listview" data-inset="false" id="menu-list">
-                <li data-theme="b"><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
                 <li><a href="#filters">Filters</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#issues">Issue navigator</a></li>
@@ -240,7 +252,7 @@
                     <div class="ui-block-c">
                         <div data-role="collapsible" data-collapsed="false">
                             <h3>Comments</h3>
-                            <p>List of comments</p>
+                            <p id="issue-comments-container">No comments</p>
                         </div>
                         <!-- /collapsible -->
                     </div>

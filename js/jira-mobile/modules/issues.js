@@ -71,7 +71,7 @@ JiraMobile.addModule('issues', (function () {
                 var row = $("#issues-table > tbody > tr").get(i);
                 $(row).find("a").tap(function (e) {
                     e.preventDefault();
-                    currentIssueKey = issueKey;
+                    localStorage.setItem('currentIssueKey', issueKey);
                     $( "body" ).pagecontainer( "change", "#issue" );
                 });
             })(templateData.issues[i].key);

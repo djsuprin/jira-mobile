@@ -6,6 +6,15 @@ JiraMobile.addModule('issue', (function () {
 		ISSUE_LINK = '/rest/api/latest/issue/';
 
     function showIssue() {
+        // if issue key is set as URL parameter take its value otherwise look up in localStorage
+        var hashIssueKey = window.location.hash.split("?");
+        var currentIssueKey;
+        if (hashIssueKey.length > 1) {
+            currentIssueKey = hashIssueKey[1];
+        } else {
+            currentIssueKey = localStorage['currentIssueKey'];
+        }
+        
         $('#issue').find('#issue-page-title').html(currentIssueKey);
         if (typeof localStorage[currentIssueKey] !== 'undefined') {
             console.log(localStorage[currentIssueKey]);
@@ -36,6 +45,7 @@ JiraMobile.addModule('issue', (function () {
     }
 
     function displayIssue(data) {
+        console.log(data);
         var issueFields = data['fields'];
         var issue = {
             description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
@@ -45,6 +55,25 @@ JiraMobile.addModule('issue', (function () {
             updated: new Date(issueFields['updated']).toLocaleString(),
             duedate: new Date(issueFields['duedate']).toLocaleString()
         }
+
+        var commentData = issueFields['comment'];
+        var commentsArray = commentData['comments'];
+        var templateData = { comments : [] };
+        var comment, author;
+        for (var i = commentData['startAt']; i < commentData['maxResults']; i++) {
+            author = commentsArray[i]['author'];
+            comment = {
+                avatar: author['avatarUrls']['48x48'],
+                author: author['displayName'],
+                created: new Date(commentsArray[i]['created']).toLocaleString(),
+                updated: new Date(commentsArray[i]['updated']).toLocaleString(),
+                comment: commentsArray[i]['body']
+            }
+            templateData.comments.push(comment);
+        }
+        var commentsListHtml = Mustache.to_html($('#issue-comments-tpl').html(), templateData);
+        $('#issue-comments-container').html(commentsListHtml);
+        $('#issue-comments').listview();
 
         $('#issue-summary').html(issueFields['summary']);
         $('#issue-type').html(issueFields['issuetype']['name']);
@@ -66,6 +95,8 @@ JiraMobile.addModule('issue', (function () {
         $('#issue-estimated').html(issueFields['timetracking']['originalEstimate']);
         $('#issue-remaining').html(issueFields['timetracking']['remainingEstimate']);
         $('#issue-logged').html(issueFields['timetracking']['timeSpent']);
+
+        // TODO: show comments
     }
 
     function createButtonsFromArray(elements, placeholderSelector) {
