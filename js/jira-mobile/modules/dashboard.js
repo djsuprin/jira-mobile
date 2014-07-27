@@ -1,19 +1,15 @@
-var Dashboard = (function () {
+JiraMobile.addModule('dashboard', (function () {
 
-	var _context = null;
+	var settings = JiraMobile.getModule('settings');
 
 	return {
-		init: function(context) {
-			_context = context;
-		},
-		showDashboardPage: function() {
-			var settings = _context.getModule("settings");
+		showDashboard: function() {
 			var jiraLink = settings.getJiraLink();
 			var authHeaderValue = settings.getAuthHeaderValue();
-	        if (jiraLink == null || jiraLink == '' || authHeaderValue == null || authHeaderValue == '') {
+	        if (jiraLink == null || jiraLink === '' || authHeaderValue == null || authHeaderValue === '') {
 	            $( "body" ).pagecontainer( "change", "#settings");
 	        }
 	    }
 	};
 
-})();
+})());

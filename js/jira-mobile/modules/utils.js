@@ -1,4 +1,4 @@
-var Utils = (function () {
+JiraMobile.addModule('utils', (function () {
 
 	var notificationTimeoutId = -999;
 
@@ -41,4 +41,4 @@ var Utils = (function () {
 	    }
 	};
 
-})();
+})());

@@ -1,68 +1,58 @@
-/*global localStorage: false, console: false, $: false */
-
 var JiraMobile = (function () {
 
-	var thisModule = this;
 	var modules = {};
 
 	return {
-		getModule: function(name) {
-			if (typeof modules[name] !== 'undefined') {
-				return modules[name];
-			}
-		},
-
+        addModule: function(name, module) {
+            modules[name] = module;
+        },
+        getModule: function(name) {
+            if (typeof modules[name] !== 'undefined') {
+                return modules[name];
+            }
+        },
 		init: function() {
-			modules.utils = Utils;
-			modules.settings = Settings;
-			modules.dashboard = Dashboard;
-			modules.filters = Filters;
+            // TODO: Initialize stuff here
+            $(function() {
+                $('#save-settings-button').tap(function (e) {
+                    e.preventDefault();
+                    JiraMobile.getModule('settings').saveSettings();
+                });
 
-			modules.dashboard.init(thisModule);
-			modules.filters.init(thisModule);
+                $('#clear-cached-data-button').tap(function (e) {
+                    e.preventDefault();
+                    localStorage.clear();
+                });
+
+                $('#filter-button').tap(function (e) {
+                    e.preventDefault();
+                    //filterIssues();
+                });
+
+                //$('#save-filter-button').tap(onSaveFilterButtonClick);
+
+                $('#new-filter-button').tap(function (e) {
+                    //clearFilter();
+                });
+
+                $( "#menu_panel" ).panel();
+                $( "#menu-list" ).listview().enhanceWithin();
+                $.mobile.defaultPageTransition = 'slide';
+            });
+
+            $(document).on( "pagecontainershow", function(e, ui) {
+                var pageId = ui.toPage.attr("id");
+                switch (pageId) {
+                    case "dashboard": JiraMobile.getModule('dashboard').showDashboard(); break;
+                    case "settings": JiraMobile.getModule('settings').loadSettings(); break;
+                    case "projects": JiraMobile.getModule('projects').showProjects(); break;
+                    case "filters": JiraMobile.getModule('filters').showFilters(); break;
+                    case "issues": JiraMobile.getModule('issues').showIssues(); break;
+                    case "issue": JiraMobile.getModule('issue').showIssue(); break;
+                    case "issue-form": JiraMobile.getModule('issue-form').showIssueForm(); break;
+                }
+            });
 		}
 	};
 
 })();
-
-(function() {
-	JiraMobile.init();
-
-	$('#save-settings-button').tap(function (e) {
-        e.preventDefault();
-        JiraMobile.getModule("settings").saveSettings();
-    });
-
-    $('#clear-cached-data-button').tap(function (e) {
-        e.preventDefault();
-        localStorage.clear();
-    });
-
-    $('#filter-button').tap(function (e) {
-        e.preventDefault();
-        //filterIssues();
-    });
-
-    //$('#save-filter-button').tap(onSaveFilterButtonClick);
-
-    $('#new-filter-button').tap(function (e) {
-        //clearFilter();
-    });
-
-    $( "#menu_panel" ).panel();
-    $( "#menu-list" ).listview().enhanceWithin();
-    $.mobile.defaultPageTransition = 'slide';
-})();
-
-$(document).on( "pagecontainershow", function(e, ui) {
-    var pageId = ui.toPage.attr("id");
-    switch (pageId) {
-        case "dashboard": JiraMobile.getModule("dashboard").showDashboardPage(); break;
-        case "settings": JiraMobile.getModule("settings").loadSettings(); break;
-        //case "projects": showProjectsPage(); break;
-        case "filters": JiraMobile.getModule("filters").showFilters(); break;
-        //case "issues": showIssues(); break;
-        //case "issue": showIssue(); break;
-        //case "issue-form": showIssueForm(); break;
-    }
-});

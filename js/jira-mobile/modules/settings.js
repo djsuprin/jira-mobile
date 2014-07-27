@@ -1,7 +1,7 @@
-var Settings = (function () {
+JiraMobile.addModule('settings', (function () {
 
-	var jiraLink = '',
-		authHeaderValue = '';
+	var jiraLink        = localStorage.getItem('jiraLink'),
+        authHeaderValue = localStorage.getItem('authHeaderValue');
 
 	function makeAuthHeaderValue(username, password) {
         var tok = username + ':' + password;
@@ -32,8 +32,7 @@ var Settings = (function () {
 	    loadSettings: function() {
 	        $('#jira-link-field').val(localStorage.getItem('jiraLink'));
 	        $('#username-field').val(localStorage.getItem('username'));
-	        $('#password-field').val(localStorage.getItem('password'));
 	    }
 	};
 
-})(); 
+})()); 
