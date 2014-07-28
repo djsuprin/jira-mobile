@@ -32,10 +32,15 @@
     <script id="issue-comments-tpl" type="text/html">
         <ul data-role="listview" data-inset="false" id="issue-comments">
         {{#comments}}
-            <li data-icon="false"><a href="#">
-                <img src="{{avatar}}">
-            <h2>{{author}}</h2>
-            <p style="white-space: normal;">{{comment}}</p></a>
+            <li data-icon="false">
+                <a href="#">
+                    <img src="{{avatar}}">
+                    <h2>{{author}}</h2>
+                    <p class="issue-comment-body"></p>
+                    <p>
+                        <p class="ui-li-aside"><strong>{{updated}}</strong></p>
+                    </p>
+                </a>
             </li>
         {{/comments}}
         </ul>
@@ -252,7 +257,14 @@
                     <div class="ui-block-c">
                         <div data-role="collapsible" data-collapsed="false">
                             <h3>Comments</h3>
-                            <p id="issue-comments-container">No comments</p>
+                            <p>
+                                <div id="issue-comments-container"></div>
+                                <p id="issue-new-comment-form">
+                                    <label for="textarea">Comment:</label>
+                                    <textarea cols="40" rows="8" name="issue-new-comment-field" id="issue-new-comment-field"></textarea>
+                                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-left ui-icon-plus">Add</a>
+                                </p>
+                            </p>
                         </div>
                         <!-- /collapsible -->
                     </div>

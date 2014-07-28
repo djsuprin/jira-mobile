@@ -6,11 +6,12 @@ JiraMobile.addModule('utils', (function () {
 		wiki2html: function(wiki) {
 	        // replace line endings
 	        return wiki.replace(/\n/g, "<br />")
-	            .replace(/\[(.*)|(html.*)\]/g, function(str) {
+	            .replace(/\[(.*)\|(http.*)\]/g, function(str) {
 	                var temp = str.split('|');
+	                console.log(temp);
 	                var text = temp[0].substring(1);
 	                var href = temp[1].substring(0, temp[1].lastIndexOf(']'));
-	                return '<a href="' + href + '">' + text + '</a>';
+	                return '<a href="' + href + '" target="_blank">' + text + '</a>';
 	            });
     	},
 

@@ -28,6 +28,10 @@
 }
 /* End of issues list styles */
 
+.issue-comment-body {
+    white-space: normal !important;
+}
+
 
 @media all and (min-width: 36em) {
 

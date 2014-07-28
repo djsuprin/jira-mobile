@@ -3,12 +3,21 @@ JiraMobile.addModule('issue', (function () {
 	var settings   = JiraMobile.getModule('settings'),
 		utils      = JiraMobile.getModule('utils'),
 
+        currentIssueKey,
+
 		ISSUE_LINK = '/rest/api/latest/issue/';
+
+    $(function() {
+        $('#issue-new-comment-form a').tap(function(e) {
+            e.preventDefault();
+            addComment();
+        });
+    });
+
 
     function showIssue() {
         // if issue key is set as URL parameter take its value otherwise look up in localStorage
         var hashIssueKey = window.location.hash.split("?");
-        var currentIssueKey;
         if (hashIssueKey.length > 1) {
             currentIssueKey = hashIssueKey[1];
         } else {
@@ -17,7 +26,6 @@ JiraMobile.addModule('issue', (function () {
         
         $('#issue').find('#issue-page-title').html(currentIssueKey);
         if (typeof localStorage[currentIssueKey] !== 'undefined') {
-            console.log(localStorage[currentIssueKey]);
             displayIssue(JSON.parse(localStorage[currentIssueKey]));
             return;
         }
@@ -45,7 +53,6 @@ JiraMobile.addModule('issue', (function () {
     }
 
     function displayIssue(data) {
-        console.log(data);
         var issueFields = data['fields'];
         var issue = {
             description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
@@ -57,23 +64,30 @@ JiraMobile.addModule('issue', (function () {
         }
 
         var commentData = issueFields['comment'];
-        var commentsArray = commentData['comments'];
-        var templateData = { comments : [] };
-        var comment, author;
-        for (var i = commentData['startAt']; i < commentData['maxResults']; i++) {
-            author = commentsArray[i]['author'];
-            comment = {
-                avatar: author['avatarUrls']['48x48'],
-                author: author['displayName'],
-                created: new Date(commentsArray[i]['created']).toLocaleString(),
-                updated: new Date(commentsArray[i]['updated']).toLocaleString(),
-                comment: commentsArray[i]['body']
+        if (commentData.total > 0) {
+            var commentsArray = commentData['comments'];
+            var templateData = { comments : [] };
+            var comment, author;
+            for (var i = commentData['startAt']; i < commentData['maxResults']; i++) {
+                author = commentsArray[i]['author'];
+                comment = {
+                    avatar: author['avatarUrls']['48x48'],
+                    author: author['displayName'],
+                    created: new Date(commentsArray[i]['created']).toLocaleString(),
+                    updated: new Date(commentsArray[i]['updated']).toLocaleString(),
+                    comment: utils.wiki2html(commentsArray[i]['body'])
+                }
+                templateData.comments.push(comment);
             }
-            templateData.comments.push(comment);
+            var commentsListHtml = Mustache.to_html($('#issue-comments-tpl').html(), templateData);
+            $('#issue-comments-container').html(commentsListHtml);
+            for (var i = 0; i < templateData.comments.length; i++) {
+                $($('.issue-comment-body').get(i)).html(templateData.comments[i]['comment']);
+            }
+            $('#issue-comments').listview();
+        } else {
+            $('#issue-comments-container').html('<p>No comments</p>');
         }
-        var commentsListHtml = Mustache.to_html($('#issue-comments-tpl').html(), templateData);
-        $('#issue-comments-container').html(commentsListHtml);
-        $('#issue-comments').listview();
 
         $('#issue-summary').html(issueFields['summary']);
         $('#issue-type').html(issueFields['issuetype']['name']);
@@ -95,8 +109,6 @@ JiraMobile.addModule('issue', (function () {
         $('#issue-estimated').html(issueFields['timetracking']['originalEstimate']);
         $('#issue-remaining').html(issueFields['timetracking']['remainingEstimate']);
         $('#issue-logged').html(issueFields['timetracking']['timeSpent']);
-
-        // TODO: show comments
     }
 
     function createButtonsFromArray(elements, placeholderSelector) {
@@ -123,7 +135,41 @@ JiraMobile.addModule('issue', (function () {
         }
     }
 
+    function displayNewComment(data) {
+        console.log("New comment:");
+        console.log(data);
+        /*$newComment = $('<li/>').
+        var $issueCommentsList = $('#issue-comments');
+        $issueCommentsList.append($newComment);
+        $issueCommentsList.listview('refresh');*/
+    }
+
+    function addComment() {
+        console.log('Adding new comment');
+        var commentBody = $('#issue-new-comment-form textarea').val();
+        utils.showNotification();
+        $.ajax({
+            type: "POST",
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/comment',
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            data: { body: commentBody },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
+            },
+            success: displayNewComment,
+            error: function (data) {
+                console.log('Error while adding new comment.');
+                console.log(data);
+            },
+            complete: function (data) {
+                utils.hideNotification();
+            }
+        });
+    }
+
 	return {
-	    showIssue: showIssue
+	    showIssue: showIssue,
+        addComment: addComment
 	};
 })());

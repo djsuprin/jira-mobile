@@ -5,10 +5,22 @@ JiraMobile.addModule('issues', (function () {
 
 		ISSUES_LINK = '/rest/api/latest/search?jql=';
 
+    $(function() {
+        $('#filter-button').tap(function (e) {
+            e.preventDefault();
+            filterIssues();
+        });
+
+        //$('#save-filter-button').tap(onSaveFilterButtonClick);
+
+        $('#new-filter-button').tap(function (e) {
+            clearFilter();
+        });
+    });
+
     function filterIssues() {
         // escaping JQL twice because PHP proxy script unescapes GET params
         var jql = escape($('#jql-textarea').val());
-        console.log("JQL: " + jql);
         if (jql.trim() != '') {
             if (typeof localStorage[jql] !== 'undefined') {
                 displayIssues(JSON.parse(localStorage[jql]));

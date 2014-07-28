@@ -14,27 +14,6 @@ var JiraMobile = (function () {
 		init: function() {
             // TODO: Initialize stuff here
             $(function() {
-                $('#save-settings-button').tap(function (e) {
-                    e.preventDefault();
-                    JiraMobile.getModule('settings').saveSettings();
-                });
-
-                $('#clear-cached-data-button').tap(function (e) {
-                    e.preventDefault();
-                    localStorage.clear();
-                });
-
-                $('#filter-button').tap(function (e) {
-                    e.preventDefault();
-                    //filterIssues();
-                });
-
-                //$('#save-filter-button').tap(onSaveFilterButtonClick);
-
-                $('#new-filter-button').tap(function (e) {
-                    //clearFilter();
-                });
-
                 $( "#menu_panel" ).panel();
                 $( "#menu-list" ).listview().enhanceWithin();
                 $.mobile.defaultPageTransition = 'slide';
