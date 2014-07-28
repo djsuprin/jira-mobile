@@ -1,9 +1,10 @@
 JiraMobile.addModule('issues', (function () {
 
-	var settings    = JiraMobile.getModule('settings'),
-		utils       = JiraMobile.getModule('utils'),
+	var settings          = JiraMobile.getModule('settings'),
+		utils             = JiraMobile.getModule('utils'),
 
-		ISSUES_LINK = '/rest/api/latest/search?jql=';
+		ISSUES_LINK       = '/rest/api/latest/search?jql=',
+        FILTER_BY_ID_LINK = '/rest/api/latest/filter';
 
     $(function() {
         $('#filter-button').tap(function (e) {
@@ -11,7 +12,7 @@ JiraMobile.addModule('issues', (function () {
             filterIssues();
         });
 
-        //$('#save-filter-button').tap(onSaveFilterButtonClick);
+        $('#save-filter-button').tap(onSaveFilterButtonClick);
 
         $('#new-filter-button').tap(function (e) {
             clearFilter();
@@ -58,6 +59,60 @@ JiraMobile.addModule('issues', (function () {
         $('#filter-name a').text("New filter");
         localStorage.removeItem("selectedFilter");
         filterIssues();
+    }
+
+    function onSaveFilterButtonClick(e) {
+        var filterName = $('#filter-name-field').val().trim();
+        if (filterName === '') {
+            utils.showNotification("Filter name is not specified.", true, 4000);
+            return;
+        }
+        var filterJQL = $('#jql-textarea').val().trim();
+        if (filterJQL === '') {
+            utils.showNotification("JQL is not specified.", true, 4000);
+            return;
+        }
+        // TODO: send ajax request to check if filter with such name exists. If not then save otherwise save as.
+        var selectedFilter = localStorage['selectedFilter'];
+        if (typeof selectedFilter !== 'undefined') {
+            console.log("Updating existing filter...");
+            //updateFilter(filterName, filterJQL, selectedFilter.filterID);
+        } else {
+            createFilter(filterName, filterJQL);
+            console.log("Creating new filter...");
+        }
+    }
+
+    function createFilter(filterName, filterJQL) {
+        var jsonData = {
+            "name": filterName,
+            "jql": filterJQL,
+            "favourite": true
+        };
+        $.ajax({
+            type: "POST",
+            url: settings.getJiraLink() + FILTER_BY_ID_LINK,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(jsonData),
+            beforeSend: function (xhr) {
+                utils.showNotification();
+                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
+            },
+            success: function (data, status, xhr) {
+                console.log(data);
+                if (xhr.status - xhr.status % 200 == 200) {
+                    utils.showNotification("Filter was created.", true, 4000);
+                } else {
+                    utils.showNotification("Couldn't create filter.", true, 4000);
+                }
+            },
+            error: function (data) {
+                console.log('Error while creating new filter.');
+                console.log(data);
+                utils.hideNotification();
+            }
+        });
     }
 
     function displayIssues(data) {

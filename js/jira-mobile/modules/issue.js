@@ -147,20 +147,21 @@ JiraMobile.addModule('issue', (function () {
     function addComment() {
         console.log('Adding new comment');
         var commentBody = $('#issue-new-comment-form textarea').val();
-        utils.showNotification();
+        var jsonData = { body: commentBody };
         $.ajax({
             type: "POST",
             url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/comment',
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
-            data: { body: commentBody },
+            data: JSON.stringify(jsonData),
             beforeSend: function (xhr) {
+                utils.showNotification();
                 xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
             },
             success: displayNewComment,
             error: function (data) {
                 console.log('Error while adding new comment.');
-                console.log(data);
+                console.log(data.responseText);
             },
             complete: function (data) {
                 utils.hideNotification();
