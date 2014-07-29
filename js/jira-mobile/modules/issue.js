@@ -61,8 +61,8 @@ JiraMobile.addModule('issue', (function () {
             created: new Date(issueFields['created']).toLocaleString(),
             updated: new Date(issueFields['updated']).toLocaleString(),
             duedate: new Date(issueFields['duedate']).toLocaleString(),
-            assignee: issueFields['assignee']['displayName'] !== null ? issueFields['assignee']['displayName'] : 'Unassigned',
-            reporter: issueFields['reporter']['displayName'] !== null ? issueFields['reporter']['displayName'] : 'Anonymous'
+            assignee: issueFields['assignee'] !== null ? issueFields['assignee']['displayName'] : 'Unassigned',
+            reporter: issueFields['reporter'] !== null ? issueFields['reporter']['displayName'] : 'Anonymous'
         }
 
         var commentData = issueFields['comment'];
