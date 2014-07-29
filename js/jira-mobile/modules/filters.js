@@ -15,7 +15,7 @@ JiraMobile.addModule('filters', (function () {
             var filterJQL = filters[i]['jql'];
             var filterID = filters[i]['id'];
 
-            var closure = function (filterName, filterJQL, filterID) {
+            (function (filterName, filterJQL, filterID) {
                 var $a = $('<a/>').attr({
                     href: '#'
                 }).html(filterName).tap(function (e) {
@@ -30,7 +30,7 @@ JiraMobile.addModule('filters', (function () {
                     
                 });
                 $list.append($('<li/>').html($a));
-            }(filterName, filterJQL, filterID);
+            })(filterName, filterJQL, filterID);
 
         }
         $list.listview('refresh');

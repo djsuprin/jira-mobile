@@ -27,13 +27,13 @@ JiraMobile.addModule('issues', (function () {
                 displayIssues(JSON.parse(localStorage[jql]));
                 return;
             }
-            utils.showNotification();
             (function(jql) {
                 $.ajax({
                     type: "GET",
                     url: settings.getJiraLink() + ISSUES_LINK + jql,
                     dataType: 'json',
                     beforeSend: function (xhr) {
+                        utils.showNotification();
                         xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
                     },
                     success: [function (data) {
@@ -75,6 +75,7 @@ JiraMobile.addModule('issues', (function () {
         // TODO: send ajax request to check if filter with such name exists. If not then save otherwise save as.
         var selectedFilter = localStorage['selectedFilter'];
         if (typeof selectedFilter !== 'undefined') {
+            selectedFilter = JSON.parse(selectedFilter);
             console.log("Updating existing filter...");
             updateFilter(filterName, filterJQL, selectedFilter.filterID);
         } else {
@@ -100,8 +101,9 @@ JiraMobile.addModule('issues', (function () {
                 xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
             },
             success: function (data, status, xhr) {
-                console.log(data);
+                console.log(data.id);
                 if (xhr.status - xhr.status % 200 == 200) {
+                    setFilter(filterName, filterJQL, data.id);
                     utils.showNotification("Filter was created.", true, 4000);
                 } else {
                     utils.showNotification("Couldn't create filter.", true, 4000);
@@ -109,7 +111,8 @@ JiraMobile.addModule('issues', (function () {
             },
             error: function (data) {
                 console.log('Error while creating new filter.');
-                console.log(data);
+            },
+            complete: function (data) {
                 utils.hideNotification();
             }
         });
@@ -121,10 +124,9 @@ JiraMobile.addModule('issues', (function () {
             "jql": filterJQL,
             "favourite": true
         };
-        var filterUpdateUrl = settings.getJiraLink() + FILTER_BY_ID_LINK + '/' + filterID;
         $.ajax({
             type: "PUT",
-            url: filterUpdateUrl,
+            url: settings.getJiraLink() + FILTER_BY_ID_LINK + '/' + filterID,
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(jsonData),
@@ -136,12 +138,7 @@ JiraMobile.addModule('issues', (function () {
                 console.log(status);
                 console.log(data);
                 if (xhr.status - xhr.status % 200 == 200) {
-                    var selectedFilter = {
-                        filterName: filterName,
-                        filterJQL: filterJQL,
-                        filterID: filterID
-                    };
-                    localStorage['selectedFilter'] = selectedFilter;
+                    setFilter(filterName, filterJQL, filterID);
                     utils.showNotification("Filter was updated.", true, 4000);
                 } else if (xhr.status == 400) {
                     utils.showNotification("Couldn't update filter.", true, 4000);
@@ -149,10 +146,22 @@ JiraMobile.addModule('issues', (function () {
             },
             error: function (data) {
                 console.log('Error while updating filter.');
-                console.log(data.responseText);
+            },
+            complete: function (data) {
                 utils.hideNotification();
             }
         });
+    }
+
+    function setFilter(filterName, filterJQL, filterID) {
+        var selectedFilter = {
+            filterName: filterName,
+            filterJQL: filterJQL,
+            filterID: filterID
+        };
+        localStorage['selectedFilter'] = JSON.stringify(selectedFilter);
+        $('#filter-name a').text(selectedFilter.filterName);
+        localStorage.removeItem("filters");
     }
 
     function displayIssues(data) {
