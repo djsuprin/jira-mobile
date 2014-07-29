@@ -76,10 +76,10 @@ JiraMobile.addModule('issues', (function () {
         var selectedFilter = localStorage['selectedFilter'];
         if (typeof selectedFilter !== 'undefined') {
             console.log("Updating existing filter...");
-            //updateFilter(filterName, filterJQL, selectedFilter.filterID);
+            updateFilter(filterName, filterJQL, selectedFilter.filterID);
         } else {
-            createFilter(filterName, filterJQL);
             console.log("Creating new filter...");
+            createFilter(filterName, filterJQL);
         }
     }
 
@@ -110,6 +110,46 @@ JiraMobile.addModule('issues', (function () {
             error: function (data) {
                 console.log('Error while creating new filter.');
                 console.log(data);
+                utils.hideNotification();
+            }
+        });
+    }
+
+    function updateFilter(filterName, filterJQL, filterID) {
+        var jsonData = {
+            "name": filterName,
+            "jql": filterJQL,
+            "favourite": true
+        };
+        var filterUpdateUrl = settings.getJiraLink() + FILTER_BY_ID_LINK + '/' + filterID;
+        $.ajax({
+            type: "PUT",
+            url: filterUpdateUrl,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(jsonData),
+            beforeSend: function (xhr) {
+                utils.showNotification();
+                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
+            },
+            success: function (data, status, xhr) {
+                console.log(status);
+                console.log(data);
+                if (xhr.status - xhr.status % 200 == 200) {
+                    var selectedFilter = {
+                        filterName: filterName,
+                        filterJQL: filterJQL,
+                        filterID: filterID
+                    };
+                    localStorage['selectedFilter'] = selectedFilter;
+                    utils.showNotification("Filter was updated.", true, 4000);
+                } else if (xhr.status == 400) {
+                    utils.showNotification("Couldn't update filter.", true, 4000);
+                }
+            },
+            error: function (data) {
+                console.log('Error while updating filter.');
+                console.log(data.responseText);
                 utils.hideNotification();
             }
         });

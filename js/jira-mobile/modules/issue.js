@@ -60,7 +60,9 @@ JiraMobile.addModule('issue', (function () {
                     issueFields['resolution']['name'] : 'Unresolved',
             created: new Date(issueFields['created']).toLocaleString(),
             updated: new Date(issueFields['updated']).toLocaleString(),
-            duedate: new Date(issueFields['duedate']).toLocaleString()
+            duedate: new Date(issueFields['duedate']).toLocaleString(),
+            assignee: issueFields['assignee']['displayName'] !== null ? issueFields['assignee']['displayName'] : 'Unassigned',
+            reporter: issueFields['reporter']['displayName'] !== null ? issueFields['reporter']['displayName'] : 'Anonymous'
         }
 
         var commentData = issueFields['comment'];
@@ -94,8 +96,8 @@ JiraMobile.addModule('issue', (function () {
         $('#issue-status').html(issueFields['status']['name']);
         $('#issue-resolution').html(issue['resolution']);
         $('#issue-priority').html(issueFields['priority']['name']);
-        $('#issue-assignee').html(issueFields['assignee']['displayName']);
-        $('#issue-reporter').html(issueFields['reporter']['displayName']);
+        $('#issue-assignee').html(issue['assignee']);
+        $('#issue-reporter').html(issue['reporter']);
 
         createButtonsFromArray(issueFields['versions'], '#issue-affects-versions');
         createButtonsFromArray(issueFields['fixVersions'], '#issue-fix-versions');
