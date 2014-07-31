@@ -14,7 +14,6 @@ JiraMobile.addModule('issue', (function () {
         });
     });
 
-
     function showIssue() {
         // if issue key is set as URL parameter take its value otherwise look up in localStorage
         var hashIssueKey = window.location.hash.split("?");
@@ -175,13 +174,11 @@ JiraMobile.addModule('issue', (function () {
                 utils.showNotification();
                 xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
             },
-            success: displayNewComment,
+            success: [function(data) {
+                utils.showNotification("Comment was added.", true, 4000);
+            }, displayNewComment],
             error: function (data) {
-                console.log('Error while adding new comment.');
-                console.log(data.responseText);
-            },
-            complete: function (data) {
-                utils.hideNotification();
+                utils.showNotification("Couldn't add new comment.", true, 4000);
             }
         });
     }

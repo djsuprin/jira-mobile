@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>EN-ICE JIRA</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="stylesheet" href="css/jquery.mobile-1.4.3.css" />
         <link rel="stylesheet" href="css/jira-mobile.css" />
     </head>
@@ -67,7 +67,9 @@
             <ul data-role="listview" data-inset="false" id="menu-list">
                 <li data-role="list-divider">Go to issue</li>
                 <li>
-                    <input type="search" name="issue-quick-search-field" id="issue-quick-search-field" value="" placeholder="Enter issue key">
+                    <form id="issue-quick-search-form" name="issue-quick-search-form">
+                        <input type="search" name="issue-quick-search-field" id="issue-quick-search-field" value="" placeholder="Enter issue key">
+                    </form>
                 </li>
                 <li data-role="list-divider">Places</li>
                 <li><a href="#dashboard">Dashboard</a></li>
@@ -222,12 +224,10 @@
                                     <div class="ui-block-b" id="issue-reporter"></div>
                                 </div>
                                 <p style="text-align: center">Watchers</p>
-                                <!--<div data-role="controlgroup" data-type="horizontal" data-mini="true">
-                                    <a href="#" class="ui-btn ui-corner-all" id="issue-watch-button">Watch</a>
-                                    <a href="#" class="ui-btn ui-corner-all" id="issue-watchers-list-button">List</a>
-                                </div>-->
-                                <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
-                                <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
+                                <p style="text-align: center">
+                                    <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
+                                    <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
+                                </p>
                             </p>
                         </div>
                         <!-- /collapsible -->
