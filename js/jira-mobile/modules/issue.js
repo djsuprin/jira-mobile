@@ -138,12 +138,27 @@ JiraMobile.addModule('issue', (function () {
     }
 
     function displayNewComment(data) {
-        console.log("New comment:");
-        console.log(data);
-        /*$newComment = $('<li/>').
+        var comment = {
+            author: data['author']['displayName'],
+            avatar: data['author']['avatarUrls']['48x48'],
+            updated: new Date(data['updated']).toLocaleString(),
+            body: data['body']
+        };
+        var $newComment = $('<li/>').attr('data-icon', 'false').append(
+            $('<a/>').attr('href', '#').append(
+                    $('<img/>').attr('src', comment['avatar'])
+                ).append(
+                    $('<h2/>').html(comment['author'])
+                ).append(
+                    $('<p/>').html(comment['updated'])
+                ).append(
+                    $('<p/>').addClass('issue-comment-body').html(comment['body'])
+                )
+        );
         var $issueCommentsList = $('#issue-comments');
         $issueCommentsList.append($newComment);
-        $issueCommentsList.listview('refresh');*/
+        $issueCommentsList.listview('refresh');
+        $('#issue-new-comment-field').val('');
     }
 
     function addComment() {

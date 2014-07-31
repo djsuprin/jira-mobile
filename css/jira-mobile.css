@@ -32,6 +32,10 @@
     white-space: normal !important;
 }
 
+#issue-comments-container {
+    padding-bottom: 10px;
+}
+
 
 @media all and (min-width: 36em) {
 

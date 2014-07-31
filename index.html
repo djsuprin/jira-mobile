@@ -36,10 +36,8 @@
                 <a href="#">
                     <img src="{{avatar}}">
                     <h2>{{author}}</h2>
+                    <p>{{updated}}</p>
                     <p class="issue-comment-body"></p>
-                    <p>
-                        <p class="ui-li-aside"><strong>{{updated}}</strong></p>
-                    </p>
                 </a>
             </li>
         {{/comments}}
@@ -67,11 +65,18 @@
     <body>
         <div data-role="panel" id="menu_panel" data-display="push" data-position="left" data-theme="a">
             <ul data-role="listview" data-inset="false" id="menu-list">
+                <li data-role="list-divider">Go to issue</li>
+                <li>
+                    <input type="search" name="issue-quick-search-field" id="issue-quick-search-field" value="" placeholder="Enter issue key">
+                </li>
+                <li data-role="list-divider">Places</li>
                 <li><a href="#dashboard">Dashboard</a></li>
                 <li><a href="#filters">Filters</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#issues">Issue navigator</a></li>
                 <li><a href="#settings">Settings</a></li>
+                <li data-role="list-divider">Actions</li>
+                <li><a href="#" id="cache-update-button">Refresh</a></li>
             </ul>
         </div>
         <div data-role="page" id="dashboard">
@@ -216,10 +221,13 @@
                                     <div class="ui-block-a">Reporter</div>
                                     <div class="ui-block-b" id="issue-reporter"></div>
                                 </div>
-                                <div class="ui-grid-a">
-                                    <div class="ui-block-a">Watchers</div>
-                                    <div class="ui-block-b" id="issue-watchers"></div>
-                                </div>
+                                <p style="text-align: center">Watchers</p>
+                                <!--<div data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                    <a href="#" class="ui-btn ui-corner-all" id="issue-watch-button">Watch</a>
+                                    <a href="#" class="ui-btn ui-corner-all" id="issue-watchers-list-button">List</a>
+                                </div>-->
+                                <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
+                                <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
                             </p>
                         </div>
                         <!-- /collapsible -->
@@ -262,7 +270,7 @@
                                 <p id="issue-new-comment-form">
                                     <label for="textarea">Comment:</label>
                                     <textarea cols="40" rows="8" name="issue-new-comment-field" id="issue-new-comment-field"></textarea>
-                                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-inline ui-btn-icon-left ui-icon-plus">Add</a>
+                                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-inline">Add</a>
                                 </p>
                             </p>
                         </div>
