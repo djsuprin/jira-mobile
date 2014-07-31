@@ -29,19 +29,132 @@
         {{/fieldOptions}}
     </script>
 
-    <script id="issue-comments-tpl" type="text/html">
-        <ul data-role="listview" data-inset="false" id="issue-comments">
-        {{#comments}}
-            <li data-icon="false">
-                <a href="#">
-                    <img src="{{avatar}}">
-                    <h2>{{author}}</h2>
-                    <p>{{updated}}</p>
-                    <p class="issue-comment-body"></p>
-                </a>
-            </li>
-        {{/comments}}
-        </ul>
+    <script id="issue-page-content-tpl" type="text/html">
+        <h2 id="issue-summary">{{summary}}</h2>
+        <div class="issue-grid">
+            <div class="ui-block-a">
+                <div data-role="collapsible" data-collapsed="false">
+                    <h3>Details</h3>
+                    <p>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Type</div>
+                        <div class="ui-block-b">{{issuetype}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Status</div>
+                        <div class="ui-block-b">{{status}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Resolution</div>
+                        <div class="ui-block-b">{{resolution}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Priority</div>
+                        <div class="ui-block-b">{{priority}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Affects Version/s</div>
+                        <div class="ui-block-b">{{{affectedVersions}}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Fix Version/s</div>
+                        <div class="ui-block-b">{{{fixVersions}}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Component/s</div>
+                        <div class="ui-block-b">{{{components}}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Labels</div>
+                        <div class="ui-block-b">{{{labels}}}</div>
+                    </div>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+                <div data-role="collapsible">
+                    <h3>Description</h3>
+                    <p>{{{description}}}</p>
+                </div>
+                <!-- /collapsible -->
+            </div>
+            <div class="ui-block-b">
+                <div data-role="collapsible" data-collapsed="false">
+                    <h3>People</h3>
+                    <p>                                
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a">Assignee</div>
+                            <div class="ui-block-b">{{assignee}}</div>
+                        </div>
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a">Reporter</div>
+                            <div class="ui-block-b">{{reporter}}</div>
+                        </div>
+                        <p style="text-align: center">Watchers</p>
+                        <p style="text-align: center">
+                            <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
+                            <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
+                        </p>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+                <div data-role="collapsible" data-collapsed="false">
+                    <h3>Dates and time tracking</h3>
+                    <p>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Created</div>
+                        <div class="ui-block-b">{{created}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Updated</div>
+                        <div class="ui-block-b">{{updated}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Due date</div>
+                        <div class="ui-block-b">{{duedate}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Estimated</div>
+                        <div class="ui-block-b">{{estimated}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Remaining</div>
+                        <div class="ui-block-b">{{remaining}}</div>
+                    </div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a">Logged</div>
+                        <div class="ui-block-b">{{logged}}</div>
+                    </div>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+            </div>
+            <div class="ui-block-c">
+                <div data-role="collapsible" data-collapsed="false">
+                    <h3>Comments</h3>
+                    <p>
+                        <ul data-role="listview" data-inset="false" id="issue-comments">
+                        {{#comments}}
+                            <li data-icon="false">
+                                <a href="#">
+                                    <img src="{{avatar}}">
+                                    <h2>{{author}}</h2>
+                                    <p>{{updated}}</p>
+                                    <p>{{{body}}}</p>
+                                </a>
+                            </li>
+                        {{/comments}}
+                        </ul>
+                        {{^comments}}No comments{{/comments}}
+                        <p id="issue-new-comment-form">
+                            <label for="textarea">Comment:</label>
+                            <textarea cols="40" rows="8" name="issue-new-comment-field" id="issue-new-comment-field"></textarea>
+                            <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-inline">Add</a>
+                        </p>
+                    </p>
+                </div>
+                <!-- /collapsible -->
+            </div>
+        </div>
     </script>
 
     <script type="text/javascript" src="phonegap.js"></script>
@@ -153,130 +266,7 @@
                 <h1 id="issue-page-title">Issue</h1>
             </div>
             <div role="main" class="ui-content">
-                <h2 id="issue-summary"></h2>
-                <div class="issue-grid">
-                    <div class="ui-block-a">
-                        <div data-role="collapsible" data-collapsed="false">
-                            <h3>Details</h3>
-                            <p>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Type</div>
-                                <div class="ui-block-b" id="issue-type"></div>
-                            </div>
-                            <!--div class="ui-field-contain">
-                                <label for="select-issue-type">Type:</label>
-                                <select data-native-menu="false" name="select-issue-type" id="select-issue-type">
-                                    <option value="">Types:</option>
-                                    <option value="incident">Incident</option>
-                                    <option value="bug" selected="selected">Bug</option>
-                                    <option value="new_feature">New Feature</option>
-                                </select>
-                            </div-->
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Status</div>
-                                <div class="ui-block-b" id="issue-status"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Resolution</div>
-                                <div class="ui-block-b" id="issue-resolution"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Priority</div>
-                                <div class="ui-block-b" id="issue-priority"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Affects Version/s</div>
-                                <div class="ui-block-b" id="issue-affects-versions"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Fix Version/s</div>
-                                <div class="ui-block-b" id="issue-fix-versions"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Component/s</div>
-                                <div class="ui-block-b" id="issue-components"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Labels</div>
-                                <div class="ui-block-b" id="issue-labels"></div>
-                            </div>
-                            </p>
-                        </div>
-                        <!-- /collapsible -->
-                        <div data-role="collapsible">
-                            <h3>Description</h3>
-                            <p>
-                            <div id="issue-description"></div>
-                            </p>
-                        </div>
-                        <!-- /collapsible -->
-                    </div>
-                    <div class="ui-block-b">
-                        <div data-role="collapsible" data-collapsed="false">
-                            <h3>People</h3>
-                            <p>                                
-                                <div class="ui-grid-a">
-                                    <div class="ui-block-a">Assignee</div>
-                                    <div class="ui-block-b" id="issue-assignee"></div>
-                                </div>
-                                <div class="ui-grid-a">
-                                    <div class="ui-block-a">Reporter</div>
-                                    <div class="ui-block-b" id="issue-reporter"></div>
-                                </div>
-                                <p style="text-align: center">Watchers</p>
-                                <p style="text-align: center">
-                                    <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
-                                    <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
-                                </p>
-                            </p>
-                        </div>
-                        <!-- /collapsible -->
-                        <div data-role="collapsible" data-collapsed="false">
-                            <h3>Dates and time tracking</h3>
-                            <p>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Created</div>
-                                <div class="ui-block-b" id="issue-created"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Updated</div>
-                                <div class="ui-block-b" id="issue-updated"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Due date</div>
-                                <div class="ui-block-b" id="issue-due-date"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Estimated</div>
-                                <div class="ui-block-b" id="issue-estimated"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Remaining</div>
-                                <div class="ui-block-b" id="issue-remaining"></div>
-                            </div>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">Logged</div>
-                                <div class="ui-block-b" id="issue-logged"></div>
-                            </div>
-                            </p>
-                        </div>
-                        <!-- /collapsible -->
-                    </div>
-                    <div class="ui-block-c">
-                        <div data-role="collapsible" data-collapsed="false">
-                            <h3>Comments</h3>
-                            <p>
-                                <div id="issue-comments-container"></div>
-                                <p id="issue-new-comment-form">
-                                    <label for="textarea">Comment:</label>
-                                    <textarea cols="40" rows="8" name="issue-new-comment-field" id="issue-new-comment-field"></textarea>
-                                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-inline">Add</a>
-                                </p>
-                            </p>
-                        </div>
-                        <!-- /collapsible -->
-                    </div>
-                </div>
+                
             </div>
         </div>
         <div data-role="page" id="issue-form">

@@ -39,13 +39,13 @@ JiraMobile.addModule('issue', (function () {
                 },
                 success: [function (data) {
                     localStorage.setItem(currentIssueKey, JSON.stringify(data));
+                    utils.hideNotification();
                 }, displayIssue],
                 error: function (data) {
-                    console.log('Error while retrieving issue info.');
-                    console.log(data);
+                    utils.showNotification("Couldn't retrieve issue " + currentIssueKey + ". It may not exist.", true, 4000);
                 },
                 complete: function (data) {
-                    utils.hideNotification();
+                    
                 }
             });
         })(currentIssueKey);
@@ -53,21 +53,36 @@ JiraMobile.addModule('issue', (function () {
 
     function displayIssue(data) {
         var issueFields = data['fields'];
+    }
+
+    function _displayIssue(data) {
+        var issueFields = data['fields'];
         var issue = {
-            description: issueFields['description'] !== null ? issueFields['description'] : 'No description',
+            summary: issueFields['summary'],
+            issuetype: issueFields['issuetype']['name'],
+            status: issueFields['status']['name'],
+            priority: issueFields['priority']['name'],
             resolution: (issueFields['resolution'] !== undefined && issueFields['resolution'] !== null) ? 
                     issueFields['resolution']['name'] : 'Unresolved',
+            description: issueFields['description'] !== null ? utils.wiki2html(issueFields['description']) : 'No description',
+            assignee: issueFields['assignee'] !== null ? issueFields['assignee']['displayName'] : 'Unassigned',
+            reporter: issueFields['reporter'] !== null ? issueFields['reporter']['displayName'] : 'Anonymous',
+            affectedVersions: getButtonsHtmlFromArray(issueFields['versions']),
+            fixVersions: getButtonsHtmlFromArray(issueFields['fixVersions']),
+            components: getButtonsHtmlFromArray(issueFields['components']),
+            labels: getButtonsHtmlFromArray(issueFields['labels']),
             created: new Date(issueFields['created']).toLocaleString(),
             updated: new Date(issueFields['updated']).toLocaleString(),
             duedate: new Date(issueFields['duedate']).toLocaleString(),
-            assignee: issueFields['assignee'] !== null ? issueFields['assignee']['displayName'] : 'Unassigned',
-            reporter: issueFields['reporter'] !== null ? issueFields['reporter']['displayName'] : 'Anonymous'
+            estimated: issueFields['timetracking']['originalEstimate'],
+            remaining: issueFields['timetracking']['remainingEstimate'],
+            logged: issueFields['timetracking']['timeSpent']
         }
 
         var commentData = issueFields['comment'];
         if (commentData.total > 0) {
+            issue.comments = [];
             var commentsArray = commentData['comments'];
-            var templateData = { comments : [] };
             var comment, author;
             for (var i = commentData['startAt']; i < commentData['maxResults']; i++) {
                 author = commentsArray[i]['author'];
@@ -76,43 +91,18 @@ JiraMobile.addModule('issue', (function () {
                     author: author['displayName'],
                     created: new Date(commentsArray[i]['created']).toLocaleString(),
                     updated: new Date(commentsArray[i]['updated']).toLocaleString(),
-                    comment: utils.wiki2html(commentsArray[i]['body'])
+                    body: utils.wiki2html(commentsArray[i]['body'])
                 }
-                templateData.comments.push(comment);
+                issue.comments.push(comment);
             }
-            var commentsListHtml = Mustache.to_html($('#issue-comments-tpl').html(), templateData);
-            $('#issue-comments-container').html(commentsListHtml);
-            for (var i = 0; i < templateData.comments.length; i++) {
-                $($('.issue-comment-body').get(i)).html(templateData.comments[i]['comment']);
-            }
-            $('#issue-comments').listview();
-        } else {
-            $('#issue-comments-container').html('<p>No comments</p>');
         }
 
-        $('#issue-summary').html(issueFields['summary']);
-        $('#issue-type').html(issueFields['issuetype']['name']);
-        $('#issue-status').html(issueFields['status']['name']);
-        $('#issue-resolution').html(issue['resolution']);
-        $('#issue-priority').html(issueFields['priority']['name']);
-        $('#issue-assignee').html(issue['assignee']);
-        $('#issue-reporter').html(issue['reporter']);
-
-        createButtonsFromArray(issueFields['versions'], '#issue-affects-versions');
-        createButtonsFromArray(issueFields['fixVersions'], '#issue-fix-versions');
-        createButtonsFromArray(issueFields['components'], '#issue-components');
-        createButtonsFromArray(issueFields['labels'], '#issue-labels');
-
-        $('#issue-description').html(utils.wiki2html(issue['description']));
-        $('#issue-created').html(issue['created']);
-        $('#issue-updated').html(issue['updated']);
-        $('#issue-due-date').html(issue['duedate']);
-        $('#issue-estimated').html(issueFields['timetracking']['originalEstimate']);
-        $('#issue-remaining').html(issueFields['timetracking']['remainingEstimate']);
-        $('#issue-logged').html(issueFields['timetracking']['timeSpent']);
+        var issueHtml = Mustache.to_html($('#issue-page-content-tpl').html(), issue);
+        $('#issue-comments-container').html(issueHtml);
+        $('#issue-comments').listview();
     }
 
-    function createButtonsFromArray(elements, placeholderSelector) {
+    function getButtonsHtmlFromArray(elements) {
         if (typeof elements !== 'undefined' && elements !== null && elements.length > 0) {
             var $div = $('<div/>');
             for (var i = 0; i < elements.length; i++) {
@@ -130,10 +120,9 @@ JiraMobile.addModule('issue', (function () {
             }).addClass('ui-btn ui-btn-inline ui-mini');
             $div.append($button);
             }
-            $(placeholderSelector).html($div);
-        } else {
-            $(placeholderSelector).html('None');
+            return $div;
         }
+        return 'None';
     }
 
     function displayNewComment(data) {
