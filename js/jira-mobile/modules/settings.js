@@ -11,7 +11,15 @@ JiraMobile.addModule('settings', (function () {
 
 	    $('#clear-cached-data-button').tap(function (e) {
 	        e.preventDefault();
+	        var dataToKeep = {
+	        	jiraLink: localStorage['jiraLink'],
+	        	authHeaderValue: localStorage['authHeaderValue'],
+	        	username: localStorage['username']
+	        };
 	        localStorage.clear();
+	        localStorage.setItem("jiraLink", dataToKeep.jiraLink);
+	        localStorage.setItem("username", dataToKeep.username);
+	        localStorage.setItem("authHeaderValue", dataToKeep.authHeaderValue);
 	    });
 	});
 

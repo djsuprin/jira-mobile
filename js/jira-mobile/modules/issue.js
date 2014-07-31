@@ -7,14 +7,8 @@ JiraMobile.addModule('issue', (function () {
 
 		ISSUE_LINK = '/rest/api/latest/issue/';
 
-    $(function() {
-        $('#issue-new-comment-form a').tap(function(e) {
-            e.preventDefault();
-            addComment();
-        });
-    });
-
     function showIssue() {
+        $('#issue .ui-content').html('');
         // if issue key is set as URL parameter take its value otherwise look up in localStorage
         var hashIssueKey = window.location.hash.split("?");
         if (hashIssueKey.length > 1) {
@@ -24,38 +18,26 @@ JiraMobile.addModule('issue', (function () {
         }
         
         $('#issue').find('#issue-page-title').html(currentIssueKey);
-        if (typeof localStorage[currentIssueKey] !== 'undefined') {
-            displayIssue(JSON.parse(localStorage[currentIssueKey]));
-            return;
-        }
-        utils.showNotification();
         (function(currentIssueKey) {
             $.ajax({
                 type: "GET",
                 url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey,
                 dataType: 'json',
                 beforeSend: function (xhr) {
+                    utils.showNotification();
                     xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
                 },
                 success: [function (data) {
-                    localStorage.setItem(currentIssueKey, JSON.stringify(data));
                     utils.hideNotification();
                 }, displayIssue],
                 error: function (data) {
                     utils.showNotification("Couldn't retrieve issue " + currentIssueKey + ". It may not exist.", true, 4000);
-                },
-                complete: function (data) {
-                    
                 }
             });
         })(currentIssueKey);
     }
 
     function displayIssue(data) {
-        var issueFields = data['fields'];
-    }
-
-    function _displayIssue(data) {
         var issueFields = data['fields'];
         var issue = {
             summary: issueFields['summary'],
@@ -98,8 +80,12 @@ JiraMobile.addModule('issue', (function () {
         }
 
         var issueHtml = Mustache.to_html($('#issue-page-content-tpl').html(), issue);
-        $('#issue-comments-container').html(issueHtml);
-        $('#issue-comments').listview();
+        $('#issue .ui-content').html(issueHtml);
+        $('#issue-new-comment-form a').tap(function(e) {
+            e.preventDefault();
+            addComment();
+        });
+        $('#issue').trigger('create');
     }
 
     function getButtonsHtmlFromArray(elements) {
@@ -108,19 +94,16 @@ JiraMobile.addModule('issue', (function () {
             for (var i = 0; i < elements.length; i++) {
             var name = (typeof elements[i] == 'string' || elements[i] instanceof String) ? elements[i] : elements[i]['name'];
             var $button = $('<a/>').attr({
-                'data-role': 'button',
-                'data-inline': true,
-                'data-mini': true,
                 'href': '#'
             }).html(name).tap(function (e) {
                 e.preventDefault();
             }).taphold(function(e) {
                 console.log("edit");
                 e.preventDefault();
-            }).addClass('ui-btn ui-btn-inline ui-mini');
+            }).addClass('ui-btn ui-btn-inline');
             $div.append($button);
             }
-            return $div;
+            return $div.html();
         }
         return 'None';
     }
@@ -143,6 +126,7 @@ JiraMobile.addModule('issue', (function () {
                     $('<p/>').addClass('issue-comment-body').html(comment['body'])
                 )
         );
+        $('#issue-no-comment-message').hide();
         var $issueCommentsList = $('#issue-comments');
         $issueCommentsList.append($newComment);
         $issueCommentsList.listview('refresh');
@@ -150,8 +134,7 @@ JiraMobile.addModule('issue', (function () {
     }
 
     function addComment() {
-        console.log('Adding new comment');
-        var commentBody = $('#issue-new-comment-form textarea').val();
+        var commentBody = $('#issue-new-comment-field').val();
         var jsonData = { body: commentBody };
         $.ajax({
             type: "POST",

@@ -144,11 +144,11 @@
                             </li>
                         {{/comments}}
                         </ul>
-                        {{^comments}}No comments{{/comments}}
+                        {{^comments}}<p id="issue-no-comment-message">There are no comments yet on this issue.</p>{{/comments}}
                         <p id="issue-new-comment-form">
                             <label for="textarea">Comment:</label>
-                            <textarea cols="40" rows="8" name="issue-new-comment-field" id="issue-new-comment-field"></textarea>
-                            <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-inline">Add</a>
+                            <textarea cols="40" rows="2" name="issue-new-comment-field" id="issue-new-comment-field"></textarea>
+                            <a href="#" class="ui-shadow ui-btn ui-btn-inline">Add</a>
                         </p>
                     </p>
                 </div>
@@ -327,7 +327,7 @@
                 </p>
                 <p>
                     <a href="#" data-role="button" id="save-settings-button">Save</a>
-                    <a href="#" data-role="button" id="clear-cached-data-button">Clear</a>
+                    <a href="#" data-role="button" id="clear-cached-data-button">Clear cache</a>
                 </p>
             </div>
         </div>
