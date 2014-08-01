@@ -14,7 +14,6 @@ JiraMobile.addModule('settings', (function () {
 	    $('#clear-cached-data-button').tap(function (e) {
 	        e.preventDefault();
 	        sessionStorage.clear();
-	        localStorage.clear();
 	        utils.showNotification("Cache is cleared.", true, 4000);
 	    });
 
@@ -33,6 +32,17 @@ JiraMobile.addModule('settings', (function () {
     function getJiraLink() {
 		return localStorage['jiraLink'];
 	}
+
+    function loadSettings() {
+    	var jiraLink = localStorage.getItem('jiraLink');
+    	var username = localStorage.getItem('username');
+    	if (jiraLink !== null) {
+        	$('#jira-link-field').val(jiraLink);
+    	}
+    	if (username !== null) {
+        	$('#username-field').val(username);
+    	}
+    }
 
 	function validateSettings(jiraLink, username, password) {
 		var messages = [];
@@ -53,70 +63,71 @@ JiraMobile.addModule('settings', (function () {
         return true;
 	}
 
+	function createSession(jiraLink, username, password) {
+		var jsonData = { 
+			username: username,
+			password: password
+		};
+		utils.showNotification();
+		$.ajax({
+            type: "POST",
+            url: jiraLink + SESSION_LINK,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+   			data: JSON.stringify(jsonData),
+            success: function (data) {
+            	utils.hideNotification();
+            	sessionStorage.clear();
+            	localStorage.clear();
+            	localStorage.setItem(data['name'], data['value']);
+		        localStorage.setItem("jiraLink", jiraLink);
+		        localStorage.setItem("username", username);
+		        $( "body" ).pagecontainer( "change", "#filters");
+            },
+            error: function (data) {
+            	console.log("Couldn't create new session:");
+            	console.log(JSON.stringify(data));
+                utils.showNotification("Settings were not saved. JIRA base URL, username or password is incorrect.", true, 4000);
+            }
+        });
+	}
+
+	function deleteSession(jiraLink) {
+    	utils.showNotification();
+		$.ajax({
+            type: "DELETE",
+            url: jiraLink + SESSION_LINK,
+            dataType: 'json',
+            success: function (data) {
+            	utils.hideNotification();
+            	sessionStorage.clear();
+            	localStorage.clear();
+            	localStorage.setItem("jiraLink", jiraLink);
+		        $( "body" ).pagecontainer( "change", "#filters");
+            },
+            error: function (data) {
+                utils.showNotification("Couldn't log out.", true, 4000);
+            }
+        });
+	}
+
 	function saveSettings() {
         var jiraLink = $('#jira-link-field').val().trim();
         var username = $('#username-field').val().trim();
         var password = $('#password-field').val();
-        if (!validateSettings(jiraLink, username, password)) {
-        	return;
-        }
         var isAnonymousFlipswitchState =  $('#is-anonymous-slider').val();
         if (isAnonymousFlipswitchState === 'off') {
-			(function(jiraLink, username, password) {
-				var jsonData = { 
-					username: username,
-					password: password
-				};
-				$.ajax({
-		            type: "POST",
-		            url: jiraLink + SESSION_LINK,
-		            dataType: 'json',
-		            contentType: "application/json; charset=utf-8",
-           			data: JSON.stringify(jsonData),
-		            beforeSend: function (xhr) {
-		            	utils.showNotification();
-		                //xhr.setRequestHeader('Authorization', authHeaderValue);
-		            },
-		            success: function (data) {
-		            	utils.hideNotification();
-		            	localStorage.clear();
-		            	localStorage.setItem(data['name'], data['value']);
-				        localStorage.setItem("jiraLink", jiraLink);
-				        localStorage.setItem("username", username);
-				        saveProfile();
-				        $( "body" ).pagecontainer( "change", "#filters");
-		            },
-		            error: function (data) {
-		            	console.log("Couldn't create new session:");
-		            	console.log(JSON.stringify(data));
-		                utils.showNotification("Settings were not saved. JIRA base URL, username or password is incorrect.", true, 4000);
-		            }
-		        });
-			})(jiraLink, username, password);
+        	if (!validateSettings(jiraLink, username, password)) {
+	        	return;
+	        }
+			createSession(jiraLink, username, password);
         } else {
-        	localStorage.clear();
-        	localStorage.setItem("jiraLink", jiraLink);
+        	if (jiraLink === '') {
+        		utils.showNotification("JIRA base URL is missing.", true, 4000);
+        		return;
+        	}
+        	deleteSession(jiraLink);
         }
-    }
-
-    function saveProfile(data) {
-    	// TODO: save displayName, emailAddress, timezone, etc.
-    	/*utils.showNotification("User is authenticated. Settings are saved.", true, 4000);
-    	localStorage.setItem("displayName", data['displayName']);
-        localStorage.setItem("emailAddress", data['emailAddress']);
-        localStorage.setItem("avatar16", data['avatarUrls']['16x16']);
-        localStorage.setItem("avatar48", data['avatarUrls']['48x48']);*/
-    }
-
-    function loadSettings() {
-    	var jiraLink = localStorage.getItem('jiraLink');
-    	var username = localStorage.getItem('username');
-    	if (jiraLink !== null) {
-        	$('#jira-link-field').val(jiraLink);
-    	}
-    	if (username !== null) {
-        	$('#username-field').val(username);
-    	}
     }
 
 	return {

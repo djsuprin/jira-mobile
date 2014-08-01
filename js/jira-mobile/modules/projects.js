@@ -20,19 +20,16 @@ JiraMobile.addModule('projects', (function () {
     }
 
     function getProjects(onSuccess) {
-        if (typeof localStorage['projects'] !== 'undefined') {
-            return JSON.parse(localStorage['projects']);
+        if (typeof sessionStorage['projects'] !== 'undefined') {
+            return JSON.parse(sessionStorage['projects']);
         }
         utils.showNotification();
         $.ajax({
             type: "GET",
             url: settings.getJiraLink() + PROJECTS_LINK,
             dataType: 'json',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-            },
             success: [function(data) {
-                localStorage.setItem('projects', JSON.stringify(data));
+                sessionStorage.setItem('projects', JSON.stringify(data));
             }, onSuccess],
             error: function (data) {
                 console.log('Error while retrieving projects.');

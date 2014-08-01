@@ -6,20 +6,17 @@ JiraMobile.addModule('filters', (function () {
 		FILTERS_LINK = '/rest/api/latest/filter/favourite';
 
 	function showFilters() {
-        if (typeof localStorage['filters'] !== 'undefined') {
-            displayFilters(JSON.parse(localStorage['filters']));
+        if (typeof sessionStorage['filters'] !== 'undefined') {
+            displayFilters(JSON.parse(sessionStorage['filters']));
             return;
         }
+        utils.showNotification();
         $.ajax({
             type: "GET",
             url: settings.getJiraLink() + FILTERS_LINK,
             dataType: 'json',
-            beforeSend: function (xhr) {
-            	utils.showNotification();
-                //xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-            },
             success: [function (data) {
-                localStorage.setItem('filters', JSON.stringify(data));
+                sessionStorage.setItem('filters', JSON.stringify(data));
                 utils.hideNotification();
             }, displayFilters],
             error: function (data) {
@@ -48,7 +45,7 @@ JiraMobile.addModule('filters', (function () {
                         filterJQL: filterJQL,
                         filterID: filterID
                     };
-                    localStorage.setItem('selectedFilter', JSON.stringify(selectedFilter));
+                    sessionStorage.setItem('selectedFilter', JSON.stringify(selectedFilter));
                     $( "body" ).pagecontainer( "change", "#issues");
                     
                 });

@@ -43,8 +43,8 @@ JiraMobile.addModule('issue-form', (function () {
 
     function getIssueCreateMeta(projectKey, onSuccess) {
     	console.log("Getting issue create meta...");
-    	if (typeof localStorage['issueCreateMeta-' + projectKey] !== 'undefined') {
-            return JSON.parse(localStorage['issueCreateMeta-' + projectKey]);
+    	if (typeof sessionStorage['issueCreateMeta-' + projectKey] !== 'undefined') {
+            return JSON.parse(sessionStorage['issueCreateMeta-' + projectKey]);
         }
         utils.showNotification();
         var url = settings.getJiraLink() + ISSUE_CREATEMETA_LINK + projectKey;
@@ -56,7 +56,7 @@ JiraMobile.addModule('issue-form', (function () {
                 xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
             },
             success: [function (data) {
-                localStorage.setItem('issueCreateMeta-' + projectKey, JSON.stringify(data));
+                sessionStorage.setItem('issueCreateMeta-' + projectKey, JSON.stringify(data));
             }, onSuccess],
             error: function (data) {
                 console.log('Error while retrieving issues.');

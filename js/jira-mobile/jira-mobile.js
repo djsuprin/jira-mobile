@@ -19,7 +19,7 @@ var JiraMobile = (function () {
                 e.preventDefault();
                 var $issueQuickSearchField = $( "#issue-quick-search-field" );
                 var issueKey = $issueQuickSearchField.val();
-                localStorage.setItem('currentIssueKey', issueKey);
+                sessionStorage.setItem('currentIssueKey', issueKey);
                 $issueQuickSearchField.val('')
                 $( "body" ).pagecontainer( "change", "#issue", {
                     allowSamePageTransition: true

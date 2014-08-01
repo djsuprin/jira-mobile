@@ -23,21 +23,18 @@ JiraMobile.addModule('issues', (function () {
         // escaping JQL twice because PHP proxy script unescapes GET params
         var jql = escape($('#jql-textarea').val());
         if (jql.trim() != '') {
-            if (typeof localStorage[jql] !== 'undefined') {
-                displayIssues(JSON.parse(localStorage[jql]));
+            if (typeof sessionStorage[jql] !== 'undefined') {
+                displayIssues(JSON.parse(sessionStorage[jql]));
                 return;
             }
             (function(jql) {
+                utils.showNotification();
                 $.ajax({
                     type: "GET",
                     url: settings.getJiraLink() + ISSUES_LINK + jql,
                     dataType: 'json',
-                    beforeSend: function (xhr) {
-                        utils.showNotification();
-                        xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-                    },
                     success: [function (data) {
-                        localStorage.setItem(jql, JSON.stringify(data));
+                        sessionStorage.setItem(jql, JSON.stringify(data));
                     }, displayIssues],
                     error: function (data) {
                         console.log('Error while retrieving issues.');
@@ -57,7 +54,7 @@ JiraMobile.addModule('issues', (function () {
         $('#filter-name-field').val('');
         $('#jql-textarea').val('');
         $('#filter-name a').text("New filter");
-        localStorage.removeItem("selectedFilter");
+        sessionStorage.removeItem("selectedFilter");
         filterIssues();
     }
 
@@ -73,7 +70,7 @@ JiraMobile.addModule('issues', (function () {
             return;
         }
         // TODO: send ajax request to check if filter with such name exists. If not then save otherwise save as.
-        var selectedFilter = localStorage['selectedFilter'];
+        var selectedFilter = sessionStorage['selectedFilter'];
         if (typeof selectedFilter !== 'undefined') {
             selectedFilter = JSON.parse(selectedFilter);
             console.log("Updating existing filter...");
@@ -90,16 +87,13 @@ JiraMobile.addModule('issues', (function () {
             "jql": filterJQL,
             "favourite": true
         };
+        utils.showNotification();
         $.ajax({
             type: "POST",
             url: settings.getJiraLink() + FILTER_BY_ID_LINK,
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(jsonData),
-            beforeSend: function (xhr) {
-                utils.showNotification();
-                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-            },
             success: function (data, status, xhr) {
                 console.log(data.id);
                 if (xhr.status - xhr.status % 200 == 200) {
@@ -124,19 +118,14 @@ JiraMobile.addModule('issues', (function () {
             "jql": filterJQL,
             "favourite": true
         };
+        utils.showNotification();
         $.ajax({
             type: "PUT",
             url: settings.getJiraLink() + FILTER_BY_ID_LINK + '/' + filterID,
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(jsonData),
-            beforeSend: function (xhr) {
-                utils.showNotification();
-                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-            },
             success: function (data, status, xhr) {
-                console.log(status);
-                console.log(data);
                 if (xhr.status - xhr.status % 200 == 200) {
                     setFilter(filterName, filterJQL, filterID);
                     utils.showNotification("Filter was updated.", true, 4000);
@@ -159,9 +148,9 @@ JiraMobile.addModule('issues', (function () {
             filterJQL: filterJQL,
             filterID: filterID
         };
-        localStorage['selectedFilter'] = JSON.stringify(selectedFilter);
+        sessionStorage['selectedFilter'] = JSON.stringify(selectedFilter);
         $('#filter-name a').text(selectedFilter.filterName);
-        localStorage.removeItem("filters");
+        sessionStorage.removeItem("filters");
     }
 
     function displayIssues(data) {
@@ -187,7 +176,7 @@ JiraMobile.addModule('issues', (function () {
                 var row = $("#issues-table > tbody > tr").get(i);
                 $(row).find("a").tap(function (e) {
                     e.preventDefault();
-                    localStorage.setItem('currentIssueKey', issueKey);
+                    sessionStorage.setItem('currentIssueKey', issueKey);
                     $( "body" ).pagecontainer( "change", "#issue" );
                 });
             })(templateData.issues[i].key);
@@ -196,7 +185,7 @@ JiraMobile.addModule('issues', (function () {
     }
 
     function showIssues() {
-        var selectedFilter = localStorage['selectedFilter'];
+        var selectedFilter = sessionStorage['selectedFilter'];
         if (typeof selectedFilter !== 'undefined') {
             selectedFilter = JSON.parse(selectedFilter);
             $('#filter-name-field').val(selectedFilter.filterName);

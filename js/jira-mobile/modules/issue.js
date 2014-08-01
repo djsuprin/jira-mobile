@@ -9,24 +9,21 @@ JiraMobile.addModule('issue', (function () {
 
     function showIssue() {
         $('#issue .ui-content').html('');
-        // if issue key is set as URL parameter take its value otherwise look up in localStorage
+        // if issue key is set as URL parameter take its value otherwise look up in sessionStorage
         var hashIssueKey = window.location.hash.split("?");
         if (hashIssueKey.length > 1) {
             currentIssueKey = hashIssueKey[1];
         } else {
-            currentIssueKey = localStorage['currentIssueKey'];
+            currentIssueKey = sessionStorage['currentIssueKey'];
         }
         
         $('#issue').find('#issue-page-title').html(currentIssueKey);
         (function(currentIssueKey) {
+            utils.showNotification();
             $.ajax({
                 type: "GET",
                 url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey,
                 dataType: 'json',
-                beforeSend: function (xhr) {
-                    utils.showNotification();
-                    xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-                },
                 success: [function (data) {
                     utils.hideNotification();
                 }, displayIssue],
@@ -136,16 +133,13 @@ JiraMobile.addModule('issue', (function () {
     function addComment() {
         var commentBody = $('#issue-new-comment-field').val();
         var jsonData = { body: commentBody };
+        utils.showNotification();
         $.ajax({
             type: "POST",
             url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/comment',
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(jsonData),
-            beforeSend: function (xhr) {
-                utils.showNotification();
-                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
-            },
             success: [function(data) {
                 utils.showNotification("Comment was added.", true, 4000);
             }, displayNewComment],
