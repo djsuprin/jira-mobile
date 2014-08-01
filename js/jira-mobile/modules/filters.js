@@ -5,6 +5,32 @@ JiraMobile.addModule('filters', (function () {
 
 		FILTERS_LINK = '/rest/api/latest/filter/favourite';
 
+	function showFilters() {
+        if (typeof localStorage['filters'] !== 'undefined') {
+            displayFilters(JSON.parse(localStorage['filters']));
+            return;
+        }
+        $.ajax({
+            type: "GET",
+            url: settings.getJiraLink() + FILTERS_LINK,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+            	utils.showNotification();
+                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
+            },
+            success: [function (data) {
+                localStorage.setItem('filters', JSON.stringify(data));
+            }, displayFilters],
+            error: function (data) {
+                console.log('Error while retrieving filters.');
+                console.log(data);
+            },
+            complete: function (data) {
+                utils.hideNotification();
+            }
+        });
+	}
+
 	function displayFilters(data) {
         var $list = $('#filters-list');
         $list.html('');
@@ -37,33 +63,6 @@ JiraMobile.addModule('filters', (function () {
     }
 
 	return {
-		showFilters: function() {
-			var jiraLink = settings.getJiraLink();
-			var authHeaderValue = settings.getAuthHeaderValue();
-
-	        if (typeof localStorage['filters'] !== 'undefined') {
-	            displayFilters(JSON.parse(localStorage['filters']));
-	            return;
-	        }
-	        utils.showNotification();
-	        $.ajax({
-	            type: "GET",
-	            url: jiraLink + FILTERS_LINK,
-	            dataType: 'json',
-	            beforeSend: function (xhr) {
-	                xhr.setRequestHeader('Authorization', authHeaderValue);
-	            },
-	            success: [function (data) {
-	                localStorage.setItem('filters', JSON.stringify(data));
-	            }, displayFilters],
-	            error: function (data) {
-	                console.log('Error while retrieving filters.');
-	                console.log(data);
-	            },
-	            complete: function (data) {
-	                utils.hideNotification();
-	            }
-	        });
-	    }
+		showFilters: showFilters
 	};
 })());
