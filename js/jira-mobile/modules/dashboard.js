@@ -5,8 +5,7 @@ JiraMobile.addModule('dashboard', (function () {
 	return {
 		showDashboard: function() {
 			var jiraLink = settings.getJiraLink();
-			var authHeaderValue = settings.getAuthHeaderValue();
-	        if (jiraLink == null || jiraLink === '' || authHeaderValue == null || authHeaderValue === '') {
+	        if (jiraLink == null || jiraLink === '') {
 	            $( "body" ).pagecontainer( "change", "#settings");
 	        }
 	    }

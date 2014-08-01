@@ -16,17 +16,14 @@ JiraMobile.addModule('filters', (function () {
             dataType: 'json',
             beforeSend: function (xhr) {
             	utils.showNotification();
-                xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
+                //xhr.setRequestHeader('Authorization', settings.getAuthHeaderValue());
             },
             success: [function (data) {
                 localStorage.setItem('filters', JSON.stringify(data));
+                utils.hideNotification();
             }, displayFilters],
             error: function (data) {
-                console.log('Error while retrieving filters.');
-                console.log(data);
-            },
-            complete: function (data) {
-                utils.hideNotification();
+                utils.showNotification("Couldn't retrieve filters.", true, 4000);
             }
         });
 	}

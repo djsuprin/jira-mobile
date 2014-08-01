@@ -315,15 +315,17 @@
             <div data-role="content">
                 <p>
                     <label for="jira-link-field">JIRA link:</label>
-                    <input type="text" name="text-basic" id="jira-link-field" value="">
+                    <input type="url" data-clear-btn="true" name="jira-link-field" id="jira-link-field" value="http://vvasilye-jira6.cern.ch">
                 </p>
                 <p>
-                    <label for="username-field">User name:</label>
-                    <input type="text" name="text-basic" id="username-field" value="">
-                </p>
-                <p>
-                    <label for="password-field">Password:</label>
-                    <input type="password" name="password" id="password-field" value="" autocomplete="off">
+                    <label for="is-anonymous-slider">Access JIRA anonymously?</label>
+                    <select name="is-anonymous-slider" id="is-anonymous-slider" data-role="slider">
+                        <option value="off" selected="selected">No</option>
+                        <option value="on">Yes</option>
+                    </select>
+                    <label for="username-field">Credentials:</label>
+                    <input type="text" data-clear-btn="true" name="username-field" id="username-field" placeholder="Username" value="vvasilye">
+                    <input type="password" data-clear-btn="true" name="password-field" id="password-field" placeholder="Password" value="" autocomplete="off">
                 </p>
                 <p>
                     <a href="#" data-role="button" id="save-settings-button">Save</a>
