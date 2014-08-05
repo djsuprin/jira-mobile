@@ -13,8 +13,7 @@ JiraMobile.addModule('settings', (function () {
 
 	    $('#clear-cached-data-button').tap(function (e) {
 	        e.preventDefault();
-	        sessionStorage.clear();
-	        utils.showNotification("Cache is cleared.", true, 4000);
+	        clearCache();
 	    });
 
 	    $('#is-anonymous-slider').change(function (e) {
@@ -28,6 +27,11 @@ JiraMobile.addModule('settings', (function () {
 	    	}
 	    });
 	});
+
+    function clearCache() {
+        sessionStorage.clear();
+        utils.showNotification("Cache is cleared.", true, 4000);
+    }
 
     function getJiraLink() {
 		return localStorage['jiraLink'];
@@ -98,15 +102,12 @@ JiraMobile.addModule('settings', (function () {
             type: "DELETE",
             url: jiraLink + SESSION_LINK,
             dataType: 'json',
-            success: function (data) {
-            	utils.hideNotification();
-            	sessionStorage.clear();
-            	localStorage.clear();
-            	localStorage.setItem("jiraLink", jiraLink);
-		        $( "body" ).pagecontainer( "change", "#filters");
-            },
-            error: function (data) {
-                utils.showNotification("Couldn't log out.", true, 4000);
+            complete: function(data) {
+                utils.hideNotification();
+                sessionStorage.clear();
+                localStorage.clear();
+                localStorage.setItem("jiraLink", jiraLink);
+                $( "body" ).pagecontainer( "change", "#filters");
             }
         });
 	}

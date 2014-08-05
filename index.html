@@ -36,38 +36,38 @@
                 <div data-role="collapsible" data-collapsed="false">
                     <h3>Details</h3>
                     <p>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Type</div>
-                        <div class="ui-block-b">{{issuetype}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Status</div>
-                        <div class="ui-block-b">{{status}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Resolution</div>
-                        <div class="ui-block-b">{{resolution}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Priority</div>
-                        <div class="ui-block-b">{{priority}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Affects Version/s</div>
-                        <div class="ui-block-b">{{{affectedVersions}}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Fix Version/s</div>
-                        <div class="ui-block-b">{{{fixVersions}}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Component/s</div>
-                        <div class="ui-block-b">{{{components}}}</div>
-                    </div>
-                    <div class="ui-grid-a">
-                        <div class="ui-block-a">Labels</div>
-                        <div class="ui-block-b">{{{labels}}}</div>
-                    </div>
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a">Type</div>
+                            <div class="ui-block-b">{{issuetype}}</div>
+                        </div>
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a">Status</div>
+                            <div class="ui-block-b">{{status}}</div>
+                        </div>
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a">Resolution</div>
+                            <div class="ui-block-b">{{resolution}}</div>
+                        </div>
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a">Priority</div>
+                            <div class="ui-block-b">{{priority}}</div>
+                        </div>
+                        <p>Affects Version/s</p>
+                        <p style="text-align: center">
+                            {{{affectedVersions}}}
+                        </p>
+                        <p>Fix Version/s</p>
+                        <p style="text-align: center">
+                            {{{fixVersions}}}
+                        </p>
+                        <p>Component/s</p>
+                        <p style="text-align: center">
+                            {{{components}}}
+                        </p>
+                        <p>Labels</p>
+                        <p style="text-align: center">
+                            {{{labels}}}
+                        </p>
                     </p>
                 </div>
                 <!-- /collapsible -->
@@ -89,7 +89,7 @@
                             <div class="ui-block-a">Reporter</div>
                             <div class="ui-block-b">{{reporter}}</div>
                         </div>
-                        <p style="text-align: center">Watchers</p>
+                        <p>Watchers</p>
                         <p style="text-align: center">
                             <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
                             <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
@@ -135,12 +135,12 @@
                         <ul data-role="listview" data-inset="false" id="issue-comments">
                         {{#comments}}
                             <li data-icon="false">
-                                <a href="#">
-                                    <img src="{{avatar}}">
-                                    <h2>{{author}}</h2>
-                                    <p>{{updated}}</p>
-                                    <p>{{{body}}}</p>
-                                </a>
+                                {{#avatar}}
+                                <img src="{{avatar}}">
+                                {{/avatar}}
+                                <h2>{{author}}</h2>
+                                <p>{{updated}}</p>
+                                <p>{{{body}}}</p>
                             </li>
                         {{/comments}}
                         </ul>
@@ -155,6 +155,25 @@
                 <!-- /collapsible -->
             </div>
         </div>
+    </script>
+
+    <script id="issue-comment-tpl" type="text/html">
+        <li data-icon="false">
+            {{#avatar}}
+            <img src="{{avatar}}">
+            {{/avatar}}
+            <h2>{{author}}</h2>
+            <p>{{updated}}</p>
+            <p>{{{body}}}</p>
+        </li>
+    </script>
+
+    <script id="projects-list-tpl" type="text/html">
+        <ul data-role="listview" data-inset="true" data-filter="true" id="projects-list">
+        {{#projects}}
+            <li><a href="#">{{name}}</a></li>
+        {{/projects}}
+        </ul>
     </script>
 
     <script type="text/javascript" src="phonegap.js"></script>
@@ -211,8 +230,7 @@
                 <a href="#issue-form">Create issue</a>
             </div>
             <div data-role="content">
-                <ul data-role="listview" data-inset="true" data-filter="true" id="projects-list">
-                </ul>
+                
             </div>
         </div>
         <div data-role="page" id="filters">

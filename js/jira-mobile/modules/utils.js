@@ -4,7 +4,7 @@ JiraMobile.addModule('utils', (function () {
 
 	return {
 		wiki2html: function(wiki) {
-	        // replace line endings
+	        // TODO: add support for basic wiki mark-up syntax
 	        return wiki.replace(/\n/g, "<br />")
 	            .replace(/\[(.*)\|(http.*)\]/g, function(str) {
 	                var temp = str.split('|');

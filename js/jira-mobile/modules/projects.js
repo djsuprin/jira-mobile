@@ -6,17 +6,14 @@ JiraMobile.addModule('projects', (function () {
 		PROJECTS_LINK = '/rest/api/latest/project';
 
     function displayProjects(data) {
-        var $list = $('#projects-list');
-        $list.html('');
         if (data == null || !(data instanceof Array)) return;
-        var projects = data;
-        for (var i = 0; i < projects.length; i++) {
-            var $a = $('<a/>').attr({
-                href: '#'
-            }).html(projects[i]['name']);
-            $list.append($('<li/>').html($a));
-        }
-        $list.listview('refresh');
+        var projectsData = {
+            projects: data
+        };
+        var projectsListHtml = Mustache.to_html($('#projects-list-tpl').html(), projectsData);
+        $('#projects .ui-content').html(projectsListHtml);
+        // TODO: Assign click handlers to navigate to selected project
+        $('#projects-list').listview();
     }
 
     function getProjects(onSuccess) {

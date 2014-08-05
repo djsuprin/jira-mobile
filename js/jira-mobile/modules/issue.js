@@ -65,12 +65,16 @@ JiraMobile.addModule('issue', (function () {
             var comment, author;
             for (var i = commentData['startAt']; i < commentData['maxResults']; i++) {
                 author = commentsArray[i]['author'];
+                console.log('Author' + i);
+                console.log(author);
                 comment = {
-                    avatar: author['avatarUrls']['48x48'],
-                    author: author['displayName'],
+                    author: typeof author !== 'undefined' ? author['displayName'] : 'Anonymous',
                     created: new Date(commentsArray[i]['created']).toLocaleString(),
                     updated: new Date(commentsArray[i]['updated']).toLocaleString(),
                     body: utils.wiki2html(commentsArray[i]['body'])
+                }
+                if (typeof author !== 'undefined') {
+                    comment.avatar = author['avatarUrls']['48x48'];
                 }
                 issue.comments.push(comment);
             }
@@ -107,26 +111,18 @@ JiraMobile.addModule('issue', (function () {
 
     function displayNewComment(data) {
         var comment = {
-            author: data['author']['displayName'],
-            avatar: data['author']['avatarUrls']['48x48'],
+            author: typeof data['author'] !== 'undefined' ? data['author']['displayName'] : 'Anonymous',
             updated: new Date(data['updated']).toLocaleString(),
             body: data['body']
         };
-        var $newComment = $('<li/>').attr('data-icon', 'false').append(
-            $('<a/>').attr('href', '#').append(
-                    $('<img/>').attr('src', comment['avatar'])
-                ).append(
-                    $('<h2/>').html(comment['author'])
-                ).append(
-                    $('<p/>').html(comment['updated'])
-                ).append(
-                    $('<p/>').addClass('issue-comment-body').html(comment['body'])
-                )
-        );
-        $('#issue-no-comment-message').hide();
+        if (typeof data['author'] !== 'undefined') {
+            comment.avatar = data['author']['avatarUrls']['48x48'];
+        }
+        var newCommentHtml = Mustache.to_html($('#issue-comment-tpl').html(), comment);
         var $issueCommentsList = $('#issue-comments');
-        $issueCommentsList.append($newComment);
+        $issueCommentsList.append(newCommentHtml);
         $issueCommentsList.listview('refresh');
+        $('#issue-no-comment-message').hide();
         $('#issue-new-comment-field').val('');
     }
 
@@ -142,6 +138,8 @@ JiraMobile.addModule('issue', (function () {
             data: JSON.stringify(jsonData),
             success: [function(data) {
                 utils.showNotification("Comment was added.", true, 4000);
+                console.log("New comment:");
+                console.log(JSON.stringify(data));
             }, displayNewComment],
             error: function (data) {
                 utils.showNotification("Couldn't add new comment.", true, 4000);
