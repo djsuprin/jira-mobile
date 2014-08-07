@@ -54,19 +54,27 @@
                         </div>
                         <p>Affects Version/s</p>
                         <p style="text-align: center">
-                            {{{affectedVersions}}}
+                            {{#affectedVersions}}
+                                <a href="#" class="ui-btn ui-btn-inline affected-versions-button">{{name}}</a>
+                            {{/affectedVersions}}
                         </p>
                         <p>Fix Version/s</p>
                         <p style="text-align: center">
-                            {{{fixVersions}}}
+                            {{#fixVersions}}
+                                <a href="#" class="ui-btn ui-btn-inline fix-versions-button">{{name}}</a>
+                            {{/fixVersions}}
                         </p>
                         <p>Component/s</p>
                         <p style="text-align: center">
-                            {{{components}}}
+                            {{#components}}
+                                <a href="#" class="ui-btn ui-btn-inline components-button">{{name}}</a>
+                            {{/components}}
                         </p>
                         <p>Labels</p>
                         <p style="text-align: center">
-                            {{{labels}}}
+                            {{#labels}}
+                                <a href="#" class="ui-btn ui-btn-inline labels-button">{{name}}</a>
+                            {{/labels}}
                         </p>
                     </p>
                 </div>

@@ -36,6 +36,20 @@ JiraMobile.addModule('issue', (function () {
 
     function displayIssue(data) {
         var issueFields = data['fields'];
+
+        for (var i = 0; i < issueFields['versions'].length; i++) {
+            issueFields['versions'][i]['jql'] = 'affectedVersion="' + issueFields['versions'][i]['name'] + '"';
+        }
+        for (var i = 0; i < issueFields['fixVersions'].length; i++) {
+            issueFields['fixVersions'][i]['jql'] = 'fixVersion="' + issueFields['fixVersions'][i]['name'] + '"';
+        }
+        for (var i = 0; i < issueFields['components'].length; i++) {
+            issueFields['components'][i]['jql'] = 'component="' + issueFields['components'][i]['name'] + '"';
+        }
+        for (var i = 0; i < issueFields['labels'].length; i++) {
+            issueFields['labels'][i]['jql'] = 'labels="' + issueFields['labels'][i]['name'] + '"';
+        }
+
         var issue = {
             summary: issueFields['summary'],
             issuetype: issueFields['issuetype']['name'],
@@ -46,10 +60,10 @@ JiraMobile.addModule('issue', (function () {
             description: issueFields['description'] !== null ? utils.wiki2html(issueFields['description']) : 'No description',
             assignee: issueFields['assignee'] !== null ? issueFields['assignee']['displayName'] : 'Unassigned',
             reporter: issueFields['reporter'] !== null ? issueFields['reporter']['displayName'] : 'Anonymous',
-            affectedVersions: getButtonsHtmlFromArray(issueFields['versions']),
-            fixVersions: getButtonsHtmlFromArray(issueFields['fixVersions']),
-            components: getButtonsHtmlFromArray(issueFields['components']),
-            labels: getButtonsHtmlFromArray(issueFields['labels']),
+            affectedVersions: issueFields['versions'],
+            fixVersions: issueFields['fixVersions'],
+            components: issueFields['components'],
+            labels: issueFields['labels'],
             created: new Date(issueFields['created']).toLocaleString(),
             updated: new Date(issueFields['updated']).toLocaleString(),
             duedate: new Date(issueFields['duedate']).toLocaleString(),
@@ -57,6 +71,7 @@ JiraMobile.addModule('issue', (function () {
             remaining: issueFields['timetracking']['remainingEstimate'],
             logged: issueFields['timetracking']['timeSpent']
         }
+        
 
         var commentData = issueFields['comment'];
         if (commentData.total > 0) {
@@ -82,31 +97,28 @@ JiraMobile.addModule('issue', (function () {
 
         var issueHtml = Mustache.to_html($('#issue-page-content-tpl').html(), issue);
         $('#issue .ui-content').html(issueHtml);
+
+        var createOnIssueButtonClickHandler = function(jql) {
+            return function(e) {
+                e.preventDefault();
+                var selectedFilter = {
+                    filterJQL: jql.replace('%%%', $(this).html())
+                };
+                sessionStorage.setItem('selectedFilter', JSON.stringify(selectedFilter));
+                $( "body" ).pagecontainer( "change", "#issues" );
+            };
+        };
+
+        $('.affected-versions-button').tap( createOnIssueButtonClickHandler('affectedVersion="%%%"') );
+        $('.fix-versions-button').tap( createOnIssueButtonClickHandler('fixVersion="%%%"') );
+        $('.components-button').tap( createOnIssueButtonClickHandler('component="%%%"') );
+        $('.labels-button').tap( createOnIssueButtonClickHandler('label="%%%"') );
+
         $('#issue-new-comment-form a').tap(function(e) {
             e.preventDefault();
             addComment();
         });
         $('#issue').trigger('create');
-    }
-
-    function getButtonsHtmlFromArray(elements) {
-        if (typeof elements !== 'undefined' && elements !== null && elements.length > 0) {
-            var $div = $('<div/>');
-            for (var i = 0; i < elements.length; i++) {
-            var name = (typeof elements[i] == 'string' || elements[i] instanceof String) ? elements[i] : elements[i]['name'];
-            var $button = $('<a/>').attr({
-                'href': '#'
-            }).html(name).tap(function (e) {
-                e.preventDefault();
-            }).taphold(function(e) {
-                console.log("edit");
-                e.preventDefault();
-            }).addClass('ui-btn ui-btn-inline');
-            $div.append($button);
-            }
-            return $div.html();
-        }
-        return 'None';
     }
 
     function displayNewComment(data) {
