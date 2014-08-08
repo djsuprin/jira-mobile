@@ -37,19 +37,6 @@ JiraMobile.addModule('issue', (function () {
     function displayIssue(data) {
         var issueFields = data['fields'];
 
-        for (var i = 0; i < issueFields['versions'].length; i++) {
-            issueFields['versions'][i]['jql'] = 'affectedVersion="' + issueFields['versions'][i]['name'] + '"';
-        }
-        for (var i = 0; i < issueFields['fixVersions'].length; i++) {
-            issueFields['fixVersions'][i]['jql'] = 'fixVersion="' + issueFields['fixVersions'][i]['name'] + '"';
-        }
-        for (var i = 0; i < issueFields['components'].length; i++) {
-            issueFields['components'][i]['jql'] = 'component="' + issueFields['components'][i]['name'] + '"';
-        }
-        for (var i = 0; i < issueFields['labels'].length; i++) {
-            issueFields['labels'][i]['jql'] = 'labels="' + issueFields['labels'][i]['name'] + '"';
-        }
-
         var issue = {
             summary: issueFields['summary'],
             issuetype: issueFields['issuetype']['name'],
@@ -71,7 +58,6 @@ JiraMobile.addModule('issue', (function () {
             remaining: issueFields['timetracking']['remainingEstimate'],
             logged: issueFields['timetracking']['timeSpent']
         }
-        
 
         var commentData = issueFields['comment'];
         if (commentData.total > 0) {
