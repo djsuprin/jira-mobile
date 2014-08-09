@@ -98,7 +98,7 @@ JiraMobile.addModule('issue', (function () {
         $('.affected-versions-button').tap( createOnIssueButtonClickHandler('affectedVersion="%%%"') );
         $('.fix-versions-button').tap( createOnIssueButtonClickHandler('fixVersion="%%%"') );
         $('.components-button').tap( createOnIssueButtonClickHandler('component="%%%"') );
-        $('.labels-button').tap( createOnIssueButtonClickHandler('label="%%%"') );
+        $('.labels-button').tap( createOnIssueButtonClickHandler('labels="%%%"') );
 
         $('#issue-new-comment-form a').tap(function(e) {
             e.preventDefault();

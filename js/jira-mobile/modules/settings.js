@@ -89,9 +89,17 @@ JiraMobile.addModule('settings', (function () {
 		        $( "body" ).pagecontainer( "change", "#filters");
             },
             error: function (data) {
+                var message;
+                switch (data.status) {
+                    case 0: message = "Connection error. Please check your network connection."; break;
+                    case 401: message = "Invalid username or password."; break;
+                    case 403: message = "Credentials are OK but user is not allowed to log in."; break;
+                    case 404: message = "JIRA base URL is invalid."; break;
+                    default: message = "Couldn't connect. Unknown error.";
+                }
             	console.log("Couldn't create new session:");
             	console.log(JSON.stringify(data));
-                utils.showNotification("Settings were not saved. JIRA base URL, username or password is incorrect.", true, 4000);
+                utils.showNotification(message, true, 4000);
             }
         });
 	}
