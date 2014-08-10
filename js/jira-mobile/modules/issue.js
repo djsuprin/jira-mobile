@@ -7,6 +7,13 @@ JiraMobile.addModule('issue', (function () {
 
 		ISSUE_LINK = '/rest/api/latest/issue/';
 
+    $(function() {
+        $('#issue-add-watcher-form').submit(function(e) {
+            e.preventDefault();
+            addWatcher();
+        });
+    });
+
     function showIssue() {
         $('#issue .ui-content').html('');
         // if issue key is set as URL parameter take its value otherwise look up in sessionStorage
@@ -57,7 +64,7 @@ JiraMobile.addModule('issue', (function () {
             estimated: issueFields['timetracking']['originalEstimate'],
             remaining: issueFields['timetracking']['remainingEstimate'],
             logged: issueFields['timetracking']['timeSpent']
-        }
+        };
 
         var commentData = issueFields['comment'];
         if (commentData.total > 0) {
@@ -66,14 +73,12 @@ JiraMobile.addModule('issue', (function () {
             var comment, author;
             for (var i = commentData['startAt']; i < commentData['maxResults']; i++) {
                 author = commentsArray[i]['author'];
-                console.log('Author' + i);
-                console.log(author);
                 comment = {
                     author: typeof author !== 'undefined' ? author['displayName'] : 'Anonymous',
                     created: new Date(commentsArray[i]['created']).toLocaleString(),
                     updated: new Date(commentsArray[i]['updated']).toLocaleString(),
                     body: utils.wiki2html(commentsArray[i]['body'])
-                }
+                };
                 if (typeof author !== 'undefined') {
                     comment.avatar = author['avatarUrls']['48x48'];
                 }
@@ -145,8 +150,69 @@ JiraMobile.addModule('issue', (function () {
         });
     }
 
+    function showWatchersList() {
+        utils.showNotification();
+        $.ajax({
+            type: "GET",
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers',
+            dataType: 'json',
+            success: [function (data) {
+                utils.hideNotification();
+            }, displayWatchersList],
+            error: function (data) {
+                utils.showNotification("Couldn't retrieve watchers list.", true, 4000);
+            }
+        });
+    }
+
+    function displayWatchersList(data) {
+        var templateData = {
+            watchers: []
+        };
+        for (var i = 0; i < data['watchers'].length; i++) {
+            templateData.watchers.push({
+                displayName: data['watchers'][i]['displayName'],
+                name: data['watchers'][i]['name'],
+                avatar: data['watchers'][i]['avatarUrls']['48x48']
+            });
+        }
+        var watchersListHtml = Mustache.to_html($('#issue-watchers-list-tpl').html(), templateData);
+        var $issueWatchersList = $('#issue-watchers-list');
+        $issueWatchersList.append(watchersListHtml);
+
+        // add remove watcher handlers
+        $('.remove-issue-watcher-button').tap(function(e) {
+            e.preventDefault();
+            removeWatcher($(this).prev().find('.issue-watcher-name').first().html());
+        });
+
+        $issueWatchersList.listview('refresh');
+    }
+
+    function addWatcher() {
+        utils.showNotification("NOT YET IMPLEMENTED.", true, 4000);
+    }
+
+    function removeWatcher(name) {
+        console.log("Remove watcher: " + name);
+        /*utils.showNotification();
+        $.ajax({
+            type: "DELETE",
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?' + name,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: [function(data) {
+                utils.showNotification("Watcher was removed.", true, 4000);
+            }, displayNewComment],
+            error: function (data) {
+                utils.showNotification("Couldn't remove watcher.", true, 4000);
+            }
+        });*/
+    }
+
 	return {
 	    showIssue: showIssue,
-        addComment: addComment
+        addComment: addComment,
+        showWatchersList: showWatchersList
 	};
 })());

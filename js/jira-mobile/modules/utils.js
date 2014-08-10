@@ -8,7 +8,6 @@ JiraMobile.addModule('utils', (function () {
 	        return wiki.replace(/\n/g, "<br />")
 	            .replace(/\[(.*)\|(http.*)\]/g, function(str) {
 	                var temp = str.split('|');
-	                console.log(temp);
 	                var text = temp[0].substring(1);
 	                var href = temp[1].substring(0, temp[1].lastIndexOf(']'));
 	                return '<a href="' + href + '" target="_blank">' + text + '</a>';

@@ -41,6 +41,7 @@ var JiraMobile = (function () {
                 case "filters": JiraMobile.getModule('filters').showFilters(); break;
                 case "issues": JiraMobile.getModule('issues').showIssues(); break;
                 case "issue": JiraMobile.getModule('issue').showIssue(); break;
+                case "issue-watchers-page": JiraMobile.getModule('issue').showWatchersList(); break;
                 case "issue-form": JiraMobile.getModule('issue-form').showIssueForm(); break;
             }
         });

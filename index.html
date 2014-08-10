@@ -100,7 +100,7 @@
                         <p>Watchers</p>
                         <p style="text-align: center">
                             <a href="#" class="ui-btn ui-btn-inline" id="issue-watch-button">Watch</a>
-                            <a href="#" class="ui-btn ui-btn-inline" id="issue-watchers-list-button">List</a>
+                            <a href="#issue-watchers-page" class="ui-btn ui-btn-inline">List</a>
                         </p>
                     </p>
                 </div>
@@ -174,6 +174,19 @@
             <p>{{updated}}</p>
             <p>{{{body}}}</p>
         </li>
+    </script>
+
+    <script id="issue-watchers-list-tpl" type="text/html">
+        {{#watchers}}
+            <li>
+                <a href="#">
+                    <img src="{{avatar}}">
+                    <h2>{{displayName}}</h2>
+                    <p class="issue-watcher-name">{{name}}</p>
+                </a>
+                <a href="#" class="remove-issue-watcher-button" data-icon="minus">Remove</a>
+            </li>
+        {{/watchers}}
     </script>
 
     <script id="projects-list-tpl" type="text/html">
@@ -293,6 +306,19 @@
             </div>
             <div role="main" class="ui-content">
                 
+            </div>
+        </div>
+        <div data-role="page" data-dialog="true" data-close-btn="right" id="issue-watchers-page">
+            <div data-role="header" data-theme="a">
+                <h1>Watchers</h1>
+            </div>
+            <div role="main" class="ui-content">
+                <form id="issue-add-watcher-form" name="issue-add-watcher-form">
+                    <label for="issue-add-watcher-field">Add watcher:</label>
+                    <input type="text" name="issue-add-watcher-field" id="issue-add-watcher-field" value="">
+                </form>
+                <ul data-role="listview" data-inset="false" data-filter="false" id="issue-watchers-list" style="margin-top: 30px;">
+                </ul>
             </div>
         </div>
         <div data-role="page" id="issue-form">
