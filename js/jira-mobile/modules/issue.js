@@ -178,12 +178,12 @@ JiraMobile.addModule('issue', (function () {
         }
         var watchersListHtml = Mustache.to_html($('#issue-watchers-list-tpl').html(), templateData);
         var $issueWatchersList = $('#issue-watchers-list');
-        $issueWatchersList.append(watchersListHtml);
+        $issueWatchersList.html(watchersListHtml);
 
         // add remove watcher handlers
         $('.remove-issue-watcher-button').tap(function(e) {
             e.preventDefault();
-            removeWatcher($(this).prev().find('.issue-watcher-name').first().html());
+            removeWatcher($(this).prev().find('.issue-watcher-name').first().html(), $(this).parent());
         });
 
         $issueWatchersList.listview('refresh');
@@ -193,21 +193,22 @@ JiraMobile.addModule('issue', (function () {
         utils.showNotification("NOT YET IMPLEMENTED.", true, 4000);
     }
 
-    function removeWatcher(name) {
-        console.log("Remove watcher: " + name);
-        /*utils.showNotification();
+    function removeWatcher(name, $issueWatchersListElement) {
+        utils.showNotification();
+        var theurl = settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?' + name;
+        console.log("Try to remove a watcher using this URL: " + theurl);
         $.ajax({
             type: "DELETE",
             url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?' + name,
-            dataType: 'json',
-            contentType: "application/json; charset=utf-8",
-            success: [function(data) {
+            success: function(data) {
+                $issueWatchersListElement.remove();
                 utils.showNotification("Watcher was removed.", true, 4000);
-            }, displayNewComment],
+            },
             error: function (data) {
                 utils.showNotification("Couldn't remove watcher.", true, 4000);
+                console.log(JSON.stringify(data));
             }
-        });*/
+        });
     }
 
 	return {
