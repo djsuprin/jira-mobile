@@ -195,11 +195,9 @@ JiraMobile.addModule('issue', (function () {
 
     function removeWatcher(name, $issueWatchersListElement) {
         utils.showNotification();
-        var theurl = settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?' + name;
-        console.log("Try to remove a watcher using this URL: " + theurl);
         $.ajax({
             type: "DELETE",
-            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?' + name,
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?username=' + name,
             success: function(data) {
                 $issueWatchersListElement.remove();
                 utils.showNotification("Watcher was removed.", true, 4000);
