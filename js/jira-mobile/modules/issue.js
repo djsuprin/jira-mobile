@@ -181,16 +181,43 @@ JiraMobile.addModule('issue', (function () {
         $issueWatchersList.html(watchersListHtml);
 
         // add remove watcher handlers
-        $('.remove-issue-watcher-button').tap(function(e) {
-            e.preventDefault();
-            removeWatcher($(this).prev().find('.issue-watcher-name').first().html(), $(this).parent());
-        });
+        $('.remove-issue-watcher-button').tap(onRemoveIssueWatcherButtonTap);
 
         $issueWatchersList.listview('refresh');
     }
 
+    function onRemoveIssueWatcherButtonTap(e) {
+        e.preventDefault();
+        removeWatcher($(this).prev().find('.issue-watcher-name').first().html(), $(this).parent());
+    }
+
     function addWatcher() {
-        utils.showNotification("NOT YET IMPLEMENTED.", true, 4000);
+        utils.showNotification();
+        var jsonData = "\"" + settings.getUsername() + "\"";
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            data: jsonData,
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers',
+            success: function(data) {
+                var watcher = {
+                    name: settings.getUsername(),
+                    displayName: settings.getDisplayName(),
+                    avatar: settings.getBigAvatar()
+                };
+                var newWatcherHtml = Mustache.to_html($('#issue-watchers-list-element-tpl').html(), watcher);
+                var $issueWatchersList = $('#issue-watchers-list');
+                $issueWatchersList.append(newWatcherHtml);
+                $issueWatchersList.find('.remove-issue-watcher-button').last().tap(onRemoveIssueWatcherButtonTap);
+                $issueWatchersList.listview('refresh');
+                utils.showNotification("Watcher was added.", true, 4000);
+            },
+            error: function (data) {
+                utils.showNotification("Couldn't add watcher.", true, 4000);
+                console.log(data);
+            }
+        });
     }
 
     function removeWatcher(name, $issueWatchersListElement) {

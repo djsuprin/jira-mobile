@@ -3,7 +3,8 @@ JiraMobile.addModule('settings', (function () {
 	var utils 			= JiraMobile.getModule('utils'),
 		jiraLink        = localStorage.getItem('jiraLink'),
 
-        SESSION_LINK = '/rest/auth/latest/session';
+        SESSION_LINK = '/rest/auth/latest/session',
+        USER_LINK = '/rest/api/latest/user';
 
     $(function() {
 	    $('#save-settings-button').tap(function (e) {
@@ -36,6 +37,26 @@ JiraMobile.addModule('settings', (function () {
     function getJiraLink() {
 		return localStorage['jiraLink'];
 	}
+
+    function getUsername() {
+        return localStorage['username'];
+    }
+
+    function getDisplayName() {
+        return localStorage['displayName'];
+    }
+
+    function getBigAvatar() {
+        return localStorage['bigAvatar'];
+    }
+
+    function getSmallAvatar() {
+        return localStorage['smallAvatar'];
+    }
+
+    function getEmailAddress() {
+        return localStorage['emailAddress'];
+    }
 
     function loadSettings() {
     	var jiraLink = localStorage.getItem('jiraLink');
@@ -80,13 +101,32 @@ JiraMobile.addModule('settings', (function () {
             contentType: "application/json; charset=utf-8",
    			data: JSON.stringify(jsonData),
             success: function (data) {
-            	utils.hideNotification();
             	sessionStorage.clear();
             	localStorage.clear();
-            	localStorage.setItem(data['name'], data['value']);
-		        localStorage.setItem("jiraLink", jiraLink);
-		        localStorage.setItem("username", username);
-		        $( "body" ).pagecontainer( "change", "#filters");
+                localStorage.setItem(data['name'], data['value']);
+                localStorage.setItem("jiraLink", jiraLink);
+                localStorage.setItem("username", username);
+                $.ajax({
+                    type: "GET",
+                    url: jiraLink + USER_LINK + '?username=' + username,
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log("Saving profile data...");
+                        utils.hideNotification();
+                        localStorage.setItem("displayName", data['displayName']);
+                        localStorage.setItem("emailAddress", data['emailAddress']);
+                        localStorage.setItem("bigAvatar", data['avatarUrls']['48x48']);
+                        localStorage.setItem("smallAvatar", data['avatarUrls']['24x24']);
+                        console.log(localStorage);
+                        $( "body" ).pagecontainer( "change", "#filters");
+                    },
+                    error: function (data) {
+                        console.log("Couldn't get profile data:");
+                        console.log(data);
+                        utils.hideNotification();
+                        deleteSession(localStorage['jiraLink']);
+                    }
+                });
             },
             error: function (data) {
                 var message;
@@ -141,6 +181,11 @@ JiraMobile.addModule('settings', (function () {
 
 	return {
 		getJiraLink: getJiraLink,
+        getUsername: getUsername,
+        getDisplayName: getDisplayName,
+        getBigAvatar: getBigAvatar,
+        getSmallAvatar: getSmallAvatar,
+        getEmailAddress: getEmailAddress,
 		saveSettings: saveSettings,
 		loadSettings: loadSettings
 	};
