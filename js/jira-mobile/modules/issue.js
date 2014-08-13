@@ -5,12 +5,35 @@ JiraMobile.addModule('issue', (function () {
 
         currentIssueKey,
 
-		ISSUE_LINK = '/rest/api/latest/issue/';
+        WATCH_CAPTION = 'Watch',
+        STOP_WATCHING_CAPTION = 'Stop watching',
+
+		ISSUE_LINK = '/rest/api/latest/issue/',
+        USER_LINK = '/rest/api/latest/user';
 
     $(function() {
         $('#issue-add-watcher-form').submit(function(e) {
             e.preventDefault();
-            addWatcher();
+            var watcher = $('#issue-add-watcher-field').val();
+            var onSuccess = (function(username) {
+                return function(data) {
+                    $.ajax({
+                        type: "GET",
+                        url: settings.getJiraLink() + USER_LINK + '?username=' + username,
+                        dataType: 'json',
+                        success: displayNewWatcher,
+                        error: function (data) {
+                            console.log("Couldn't get profile data:");
+                            console.log(data);
+                            utils.hideNotification();
+                        }
+                    });
+                };
+            })(watcher);
+            addWatcher(watcher, onSuccess, function (data) {
+                utils.showNotification("Couldn't add watcher.", true, 4000);
+                console.log(data);
+            });
         });
     });
 
@@ -32,6 +55,7 @@ JiraMobile.addModule('issue', (function () {
                 url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey,
                 dataType: 'json',
                 success: [function (data) {
+                    console.log(data);
                     utils.hideNotification();
                 }, displayIssue],
                 error: function (data) {
@@ -58,6 +82,7 @@ JiraMobile.addModule('issue', (function () {
             fixVersions: issueFields['fixVersions'],
             components: issueFields['components'],
             labels: issueFields['labels'],
+            watchButtonCaption: data['fields']['watches']['isWatching'] === true ? STOP_WATCHING_CAPTION : WATCH_CAPTION,
             created: new Date(issueFields['created']).toLocaleString(),
             updated: new Date(issueFields['updated']).toLocaleString(),
             duedate: new Date(issueFields['duedate']).toLocaleString(),
@@ -88,6 +113,28 @@ JiraMobile.addModule('issue', (function () {
 
         var issueHtml = Mustache.to_html($('#issue-page-content-tpl').html(), issue);
         $('#issue .ui-content').html(issueHtml);
+
+        $('#issue-watch-button').tap(function(e) {
+            e.preventDefault();
+            var buttonCaption = $(this).html();
+            if (buttonCaption === WATCH_CAPTION) {
+                var onSuccess = (function($button) {
+                    return function(data) {
+                        utils.hideNotification();
+                        $button.html(STOP_WATCHING_CAPTION);
+                    };
+                })($(this));
+                addWatcher(settings.getUsername(), onSuccess);
+            } else {
+                var onSuccess = (function($button) {
+                    return function(data) {
+                        utils.hideNotification();
+                        $button.html(WATCH_CAPTION);
+                    };
+                })($(this));
+                removeWatcher(settings.getUsername(), onSuccess);
+            }
+        });
 
         var createOnIssueButtonClickHandler = function(jql) {
             return function(e) {
@@ -188,52 +235,56 @@ JiraMobile.addModule('issue', (function () {
 
     function onRemoveIssueWatcherButtonTap(e) {
         e.preventDefault();
-        removeWatcher($(this).prev().find('.issue-watcher-name').first().html(), $(this).parent());
+        var watcher = $(this).prev().find('.issue-watcher-name').first().html();
+        var onSuccess = (function($listElement) {
+            return function (data) {
+                $listElement.remove();
+                utils.showNotification("Watcher was removed.", true, 4000);
+            };
+        })($(this).parent());
+        removeWatcher(watcher, onSuccess, function (data) {
+            utils.showNotification("Couldn't remove watcher.", true, 4000);
+            console.log(JSON.stringify(data));
+        });
     }
 
-    function addWatcher() {
+    function addWatcher(username, onSuccess, onError) {
         utils.showNotification();
-        var jsonData = "\"" + settings.getUsername() + "\"";
-        $.ajax({
+        var ajaxOptions = {
             type: "POST",
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
-            data: jsonData,
-            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers',
-            success: function(data) {
-                var watcher = {
-                    name: settings.getUsername(),
-                    displayName: settings.getDisplayName(),
-                    avatar: settings.getBigAvatar()
-                };
-                var newWatcherHtml = Mustache.to_html($('#issue-watchers-list-element-tpl').html(), watcher);
-                var $issueWatchersList = $('#issue-watchers-list');
-                $issueWatchersList.append(newWatcherHtml);
-                $issueWatchersList.find('.remove-issue-watcher-button').last().tap(onRemoveIssueWatcherButtonTap);
-                $issueWatchersList.listview('refresh');
-                utils.showNotification("Watcher was added.", true, 4000);
-            },
-            error: function (data) {
-                utils.showNotification("Couldn't add watcher.", true, 4000);
-                console.log(data);
-            }
-        });
+            data: "\"" + username + "\"",
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers'
+        };
+        if (typeof onSuccess !== 'undefined') ajaxOptions.success = onSuccess;
+        if (typeof onError !== 'undefined') ajaxOptions.error = onError;
+        $.ajax(ajaxOptions);
     }
 
-    function removeWatcher(name, $issueWatchersListElement) {
+    function displayNewWatcher(data) {
+        var watcher = {
+            name: data['name'],
+            displayName: data['displayName'],
+            avatar: data['avatarUrls']['48x48']
+        };
+        var newWatcherHtml = Mustache.to_html($('#issue-watchers-list-element-tpl').html(), watcher);
+        var $issueWatchersList = $('#issue-watchers-list');
+        $issueWatchersList.append(newWatcherHtml);
+        $issueWatchersList.find('.remove-issue-watcher-button').last().tap(onRemoveIssueWatcherButtonTap);
+        $issueWatchersList.listview('refresh');
+        utils.showNotification("Watcher was added.", true, 4000);
+    }
+
+    function removeWatcher(username, onSuccess, onError) {
         utils.showNotification();
-        $.ajax({
+        var ajaxOptions = {
             type: "DELETE",
-            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?username=' + name,
-            success: function(data) {
-                $issueWatchersListElement.remove();
-                utils.showNotification("Watcher was removed.", true, 4000);
-            },
-            error: function (data) {
-                utils.showNotification("Couldn't remove watcher.", true, 4000);
-                console.log(JSON.stringify(data));
-            }
-        });
+            url: settings.getJiraLink() + ISSUE_LINK + currentIssueKey + '/watchers?username=' + username
+        };
+        if (typeof onSuccess !== 'undefined') ajaxOptions.success = onSuccess;
+        if (typeof onError !== 'undefined') ajaxOptions.error = onError;
+        $.ajax(ajaxOptions);
     }
 
 	return {
